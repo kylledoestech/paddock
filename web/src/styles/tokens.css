@@ -1,0 +1,38 @@
+:root {
+  color-scheme: dark;
+
+  --ground: #0e0f11;
+  --term-bg: #0a0b0c;
+  --surface: #16181b;
+  --surface-raised: #1d1f23;
+  --divider: #23262a;
+  --text: #e8e6e1;
+  --text-muted: #a3a6ac;
+  --text-label: #8a8d93;
+  --text-dim: #7c8087;
+
+  --status-blocked: #e0a84e;
+  --status-blocked-bg: #1c1a15;
+  --status-done: #6fbf8a;
+  --status-done-bg: #141b16;
+  --status-working: #7aa7e8;
+  --status-idle: #4a4d52;
+  --status-unknown: #33363a;
+
+  --radius-group: 14px;
+  --radius-sheet: 20px;
+  --tap: 44px;
+  --row: 52px;
+  /* Page edge. Everything at the top level (header, title, labels, sheets, terminal) lines up on it. */
+  --gutter: 20px;
+  /* Content inset inside rounded rows and groups. */
+  --inset: 16px;
+  /* Pulls a 44px icon button out so its 20px glyph sits on the gutter line. */
+  --icon-bleed: -12px;
+
+  --font: 'Geist', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

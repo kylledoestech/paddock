@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orca: herdr in your pocket</title>
+<meta name="description" content="Orca is a phone and browser client for herdr. See which agents are blocked, answer them, open any pane at a size you can read, and get a notification when work is done.">
+<meta name="theme-color" content="#0A0B0C">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/jetbrains-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jetbrains-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav wrap">
+  <a class="nav__brand" href="#top">orca</a>
+  <span class="nav__for">for herdr</span>
+  <span class="nav__links">
+    <a href="#features">[features]</a>
+    <a href="#setup">[setup]</a>
+    <a href="#faq">[faq]</a>
+    <a class="nav__gh" href="https://github.com/kylledoestech/orca">[github]</a>
+  </span>
+</nav>
+
+<main id="top">
+
+<!-- Hero -->
+<section class="hero wrap">
+  <div class="hero__text">
+    <svg class="logo" viewBox="0 0 192 50" role="img" aria-label="ORCA"><rect x="6" y="0" width="36" height="10"/><rect x="54" y="0" width="36" height="10"/><rect x="108" y="0" width="36" height="10"/><rect x="156" y="0" width="30" height="10"/><rect x="0" y="10" width="12" height="10"/><rect x="36" y="10" width="12" height="10"/><rect x="54" y="10" width="12" height="10"/><rect x="84" y="10" width="12" height="10"/><rect x="102" y="10" width="12" height="10"/><rect x="150" y="10" width="12" height="10"/><rect x="180" y="10" width="12" height="10"/><rect x="0" y="20" width="12" height="10"/><rect x="36" y="20" width="12" height="10"/><rect x="54" y="20" width="36" height="10"/><rect x="102" y="20" width="12" height="10"/><rect x="150" y="20" width="42" height="10"/><rect x="0" y="30" width="12" height="10"/><rect x="36" y="30" width="12" height="10"/><rect x="54" y="30" width="12" height="10"/><rect x="84" y="30" width="12" height="10"/><rect x="102" y="30" width="12" height="10"/><rect x="150" y="30" width="12" height="10"/><rect x="180" y="30" width="12" height="10"/><rect x="6" y="40" width="36" height="10"/><rect x="54" y="40" width="12" height="10"/><rect x="84" y="40" width="12" height="10"/><rect x="108" y="40" width="36" height="10"/><rect x="150" y="40" width="12" height="10"/><rect x="180" y="40" width="12" height="10"/></svg>
+    <h1>herdr, in your pocket<span class="cursor">_</span></h1>
+    <p class="lede">Answer, watch and steer every agent you run in herdr from your phone. Claude asks a question at your desk; you answer it from the queue at the café.</p>
+    <div class="buttons">
+      <a class="btn btn--primary" href="#setup">git clone orca</a>
+      <a class="btn" href="#how">how it works</a>
+    </div>
+    <p class="meta">free · open source · self-hosted · no account</p>
+  </div>
+  <div class="hero__pane">
+    <div class="pane">
+      <span class="pane__title">api · claude</span><span class="pane__right">devbox</span>
+      <div class="prompt prompt--lg">
+        <div><i class="dot dot--done"></i>Read(bridge/src/server.ts)</div>
+        <div class="dim indent">Read 214 lines</div>
+        <div><i class="dot dot--done"></i>I will add the health route next to the others.</div>
+        <div><i class="dot dot--blocked"></i>Write(hello.txt)</div>
+        <div class="ask">
+          <div>Do you want to create <b>hello.txt</b>?</div>
+          <div class="amber">&gt; 1. Yes</div>
+          <div class="dim">&nbsp; 2. Yes, and don’t ask again this session</div>
+          <div class="dim">&nbsp; 3. No, and tell Claude what to do differently</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it connects -->
+<section class="flow wrap" id="how" aria-label="How Orca connects">
+  <div class="flow__box"><b>herdr</b><span>agents</span></div>
+  <div class="flow__link"><span>unix socket · ssh tunnels</span><i></i></div>
+  <div class="flow__box"><b>orca</b><span>bridge</span></div>
+  <div class="flow__link"><span>tailscale https · your tailnet only</span><i></i></div>
+  <div class="flow__box"><b>phone</b><span>or browser</span></div>
+</section>
+
+<!-- Features -->
+<section class="features wrap" id="features">
+  <div class="rule"><span>what it does</span></div>
+
+  <article class="feature">
+    <div class="feature__text">
+      <span class="feature__num">01 / needs-you</span>
+      <h2>Needs you, first</h2>
+      <p>Blocked agents from every machine go to the top of one list. Finished ones follow. The rest stay out of your way.</p>
+      <ul>
+        <li>one list across all machines</li>
+        <li>status dots: blocked, working, done, idle</li>
+        <li>search every pane with ⌘K on desktop</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="pane rows rows--needs">
+        <span class="pane__title">needs you · 2</span><span class="pane__right">all machines</span>
+        <div class="row"><i class="dot dot--blocked"></i><span class="row__a">claude</span><span class="row__b">api@devbox</span><span class="row__c strong">Do you want to create hello.txt?</span></div>
+        <div class="row"><i class="dot dot--blocked"></i><span class="row__a">claude</span><span class="row__b">site@laptop-wsl</span><span class="row__c strong">Which auth provider should I use?</span></div>
+        <div class="row"><i class="dot dot--done"></i><span class="row__a">codex</span><span class="row__b">tests@devbox</span><span class="row__c">Finished: 14 tests added</span></div>
+        <div class="row"><i class="dot dot--working"></i><span class="row__a">claude</span><span class="row__b">orca@devbox</span><span class="row__c">Building the web app…</span></div>
+        <div class="row"><i class="dot dot--idle"></i><span class="row__a">shell</span><span class="row__b">logs@laptop-wsl</span><span class="row__c">tail -f bridge.log</span></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="feature feature--flip">
+    <div class="feature__text">
+      <span class="feature__num">02 / terminal</span>
+      <h2>A real terminal, sized for your phone</h2>
+      <p>Orca takes over the pane at your screen’s size, so lines wrap where you can read them. Leave, and your desk gets the pane back.</p>
+      <ul>
+        <li>pinch to show more or less text</li>
+        <li>esc, tab, arrows and enter above the keyboard</li>
+        <li>one key switches Claude between plan and auto-accept</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="phone">
+        <div class="phone__screen">
+          <div class="phone__head"><span class="dim">&lt;</span><b>claude</b><span class="dim">api · devbox</span><i class="dot dot--blocked"></i></div>
+          <div class="prompt prompt--sm phone__term">
+            <div><i class="dot dot--done"></i>Read(bridge/src/server.ts)</div>
+            <div class="dim indent">Read 214 lines</div>
+            <div><i class="dot dot--done"></i>I will add the health route next to the others.</div>
+            <div><i class="dot dot--blocked"></i>Write(hello.txt)</div>
+            <div class="ask">
+              <div>Do you want to create <b>hello.txt</b>?</div>
+              <div class="amber">&gt; 1. Yes</div>
+              <div class="dim">&nbsp; 2. Yes, and don’t ask again this session</div>
+              <div class="dim">&nbsp; 3. No, and tell Claude what to do differently</div>
+            </div>
+          </div>
+          <div class="cbar"><span class="cbar__field">Message…</span><span class="cbar__mic"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/></svg></span><span class="cbar__plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="feature">
+    <div class="feature__text">
+      <span class="feature__num">03 / notify</span>
+      <h2>Notifications that take you there</h2>
+      <p>Your phone buzzes when an agent asks a question, finishes, or exits. Tap it and you are on that pane.</p>
+      <ul>
+        <li>asks for input, finished, exited</li>
+        <li>works with the app closed</li>
+        <li>quiet while you are already looking at the pane</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="notifs">
+        <div class="notif"><span class="notif__icon">O</span><span><small>Orca · now</small><b>claude needs you · api</b><span>Do you want to create hello.txt?</span></span></div>
+        <div class="notif"><span class="notif__icon">O</span><span><small>Orca · 4 min ago</small><b>codex finished · tests</b><span>Write integration tests</span></span></div>
+        <div class="notif notif--old"><span class="notif__icon">O</span><span><small>Orca · 31 min ago</small><b>claude exited · site</b><span>laptop-wsl</span></span></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="feature feature--flip">
+    <div class="feature__text">
+      <span class="feature__num">04 / voice</span>
+      <h2>Hold to talk</h2>
+      <p>Hold the mic, say the prompt, let go. Whisper large-v3 writes it into the message box. You check it and press send.</p>
+      <ul>
+        <li>never sends on its own</li>
+        <li>handles mixed languages like Taglish</li>
+        <li>knows your project and agent names</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="voice">
+        <div class="voice__bars" aria-hidden="true"><i style="--h:8"></i><i style="--h:14"></i><i style="--h:22"></i><i style="--h:30"></i><i style="--h:18"></i><i style="--h:26"></i><i style="--h:34"></i><i style="--h:20"></i><i style="--h:12"></i><i style="--h:24"></i><i style="--h:16"></i><i style="--h:8"></i><i style="--h:6"></i></div>
+        <span class="dim small">holding · 0:04</span>
+        <div class="voice__text">refactor the auth middleware, tapos add tests para sa expired tokens</div>
+        <div class="cbar cbar--boxed"><span class="cbar__field">…</span><span class="cbar__mic cbar__mic--on"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/></svg></span><span class="cbar__plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="feature">
+    <div class="feature__text">
+      <span class="feature__num">05 / images</span>
+      <h2>Images both ways</h2>
+      <p>Send Claude a screenshot from your camera roll. See the charts and screenshots it made or read, right in the pane.</p>
+      <ul>
+        <li>uploads are resized on the phone first</li>
+        <li>images from the session, one tap away</li>
+        <li>works on remote machines too</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="thumbs">
+        <figure><div class="thumb thumb--a"><i></i><i></i><i></i></div><figcaption><span class="green">↑</span> bug-report.jpg</figcaption></figure>
+        <figure><div class="thumb thumb--b"><i></i><i></i><i></i></div><figcaption><span class="blue">↓</span> chart.png</figcaption></figure>
+        <figure><div class="thumb thumb--c"><i></i><i></i><i></i></div><figcaption><span class="blue">↓</span> homepage.png</figcaption></figure>
+      </div>
+    </div>
+  </article>
+
+  <article class="feature feature--flip">
+    <div class="feature__text">
+      <span class="feature__num">06 / machines</span>
+      <h2>Every machine you herd</h2>
+      <p>Orca reads your herdr machine list and reaches each one through an SSH tunnel. Nothing to install there beyond herdr.</p>
+      <ul>
+        <li>local and SSH machines in one list</li>
+        <li>reconnects with backoff when a box sleeps</li>
+        <li>uploads and images work over SSH</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="pane rows">
+        <span class="pane__title">$ herdr machine list</span>
+        <div class="row"><i class="dot dot--done"></i><span class="row__a wide">devbox</span><span class="row__b narrow">local</span><span class="row__c hide-sm">this machine</span><span class="row__d">6 agents</span></div>
+        <div class="row"><i class="dot dot--done"></i><span class="row__a wide">laptop-wsl</span><span class="row__b narrow">ssh</span><span class="row__c hide-sm">port 2222</span><span class="row__d">2 agents</span></div>
+        <div class="row"><i class="dot dot--offline"></i><span class="row__a wide">build-box</span><span class="row__b narrow">ssh</span><span class="row__c hide-sm">retrying in 30s</span><span class="row__d">—</span></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="feature">
+    <div class="feature__text">
+      <span class="feature__num">07 / manage</span>
+      <h2>Run the whole herd</h2>
+      <p>Start agents, plain terminals, spaces and worktrees. Rename or close them. No need to walk back to the desk.</p>
+      <ul>
+        <li>new agent, terminal, space, worktree</li>
+        <li>rename and close spaces, tabs, panes</li>
+        <li>stop an agent with one key</li>
+      </ul>
+    </div>
+    <div class="feature__visual">
+      <div class="pane menu">
+        <span class="pane__title">new</span>
+        <div class="menu__item menu__item--on"><b>&gt; agent</b><span>claude, codex, opencode… in a new tab</span></div>
+        <div class="menu__item"><b>&nbsp; terminal</b><span>a plain shell, no agent</span></div>
+        <div class="menu__item"><b>&nbsp; space</b><span>a new workspace for a project</span></div>
+        <div class="menu__item"><b>&nbsp; worktree</b><span>a git worktree with its own agent</span></div>
+        <div class="menu__foot">also: rename · close · stop · esc · mode</div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- Desktop -->
+<section class="desk wrap">
+  <div class="rule"><span>on a big screen</span></div>
+  <h2>Same app, desk sized.</h2>
+  <p class="sub">Wider than 1024px, the list becomes a sidebar and the pane opens beside it.</p>
+  <div class="desk__window">
+    <aside class="desk__side">
+      <div class="desk__brand">Orca</div>
+      <div class="desk__search"><span>Search</span><span>⌘K</span></div>
+      <div class="desk__row desk__row--on"><i class="dot dot--blocked"></i><b>claude</b><span>api</span></div>
+      <div class="desk__row"><i class="dot dot--working"></i><b>codex</b><span>tests</span></div>
+      <div class="desk__row"><i class="dot dot--done"></i><b>claude</b><span>orca</span></div>
+      <div class="desk__row"><i class="dot dot--idle"></i><b>opencode</b><span>infra</span></div>
+      <div class="desk__row"><i class="dot dot--idle"></i><b>shell</b><span>logs</span></div>
+    </aside>
+    <div class="desk__main">
+      <div class="desk__head"><b>claude</b><span>api · devbox</span></div>
+      <div class="prompt desk__term">
+        <div><i class="dot dot--done"></i>Read(bridge/src/server.ts)</div>
+        <div class="dim indent">Read 214 lines</div>
+        <div><i class="dot dot--done"></i>I will add the health route next to the others.</div>
+        <div><i class="dot dot--blocked"></i>Write(hello.txt)</div>
+        <div class="ask">
+          <div>Do you want to create <b>hello.txt</b>?</div>
+          <div class="amber">&gt; 1. Yes</div>
+          <div class="dim">&nbsp; 2. Yes, and don’t ask again this session</div>
+          <div class="dim">&nbsp; 3. No, and tell Claude what to do differently</div>
+        </div>
+      </div>
+      <div class="cbar desk__cbar"><span class="cbar__field">Message…</span><span class="cbar__mic"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/></svg></span><span class="cbar__plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Setup -->
+<section class="setup wrap" id="setup">
+  <div class="rule"><span>setup · about five minutes</span></div>
+  <div class="pane step">
+    <span class="pane__title">step 1</span>
+    <h3>Run the bridge next to herdr</h3>
+    <div class="code"><button class="copy" type="button">copy</button><pre><code><span class="dim">$ </span>git clone https://github.com/kylledoestech/orca
+<span class="dim">$ </span>cd orca/web &amp;&amp; npm install &amp;&amp; npm run build
+<span class="dim">$ </span>cd ../bridge &amp;&amp; npm install
+<span class="dim">$ </span>npm start      <span class="dim"># Node 22.18+, listens on 127.0.0.1:4280</span></code></pre></div>
+  </div>
+  <div class="pane step">
+    <span class="pane__title">step 2</span>
+    <h3>Put it on your tailnet</h3>
+    <div class="code"><button class="copy" type="button">copy</button><pre><code><span class="dim">$ </span>tailscale serve --bg --https=443 http://127.0.0.1:4280
+<span class="dim"># https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net</span></code></pre></div>
+  </div>
+  <div class="pane step">
+    <span class="pane__title">step 3</span>
+    <h3>Open it on your phone</h3>
+    <p>Open the address, choose “Add to home screen”, then turn on notifications from the bell.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq wrap" id="faq">
+  <div class="rule"><span>faq</span></div>
+  <dl>
+    <div><dt>Is Orca part of herdr?</dt><dd>No. Orca is a separate client that talks to herdr’s socket API.</dd></div>
+    <div><dt>Do my remote machines need anything new?</dt><dd>Only herdr and SSH access. Orca opens a tunnel to each machine’s herdr socket.</dd></div>
+    <div><dt>Does anything leave my network?</dt><dd>Push notifications go through your browser’s push service. Voice clips go to Groq, and only when you use voice. Nothing else.</dd></div>
+    <div><dt>Who can open it?</dt><dd>Devices on your tailnet. The bridge listens only on localhost and rejects other origins.</dd></div>
+    <div><dt>Which phones work?</dt><dd>Built and tested on Android Chrome. iPhone is untested so far.</dd></div>
+  </dl>
+</section>
+
+<!-- Call to action -->
+<section class="cta wrap">
+  <div class="cta__box">
+    <div>
+      <h2>Take the herd with you<span class="cursor">_</span></h2>
+      <code class="dim">$ git clone https://github.com/kylledoestech/orca</code>
+    </div>
+    <a class="btn btn--primary" href="https://github.com/kylledoestech/orca">get orca</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer wrap">
+  <span>orca · a phone companion for herdr</span>
+  <span>MIT license · <a href="https://github.com/kylledoestech/orca">github</a></span>
+</footer>
+
+<script>
+  // Copy buttons on the setup commands: copies the commands without the "$ " prompts or comments.
+  for (const button of document.querySelectorAll('.copy')) {
+    button.addEventListener('click', async () => {
+      const text = button.nextElementSibling.textContent
+        .split('\n')
+        .filter((line) => line.startsWith('$ '))
+        .map((line) => line.slice(2).replace(/\s+#.*$/, ''))
+        .join('\n')
+      try {
+        await navigator.clipboard.writeText(text)
+        button.textContent = 'copied'
+      } catch {
+        button.textContent = 'press ctrl+c'
+      }
+      setTimeout(() => (button.textContent = 'copy'), 1500)
+    })
+  }
+</script>
+</body>
+</html>
