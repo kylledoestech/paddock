@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-// Orca's service worker: offline shell (precache) and push notifications for agent events.
+// Paddock's service worker: offline shell (precache) and push notifications for agent events.
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
 
@@ -23,7 +23,7 @@ self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim(
 self.addEventListener('push', (event) => {
   const data = (event.data?.json() ?? {}) as Partial<PushPayload>
   event.waitUntil(
-    self.registration.showNotification(data.title ?? 'Orca', {
+    self.registration.showNotification(data.title ?? 'Paddock', {
       body: data.body,
       tag: data.tag,
       // Re-alert when a newer event replaces the pane's previous notification.
@@ -44,9 +44,9 @@ self.addEventListener('notificationclick', (event) => {
       const existing = windows.find((w) => new URL(w.url).origin === self.location.origin)
       if (existing) {
         await existing.focus().catch(() => undefined)
-        // Orca routes with the #hash, and Chrome often ignores navigate() when only the hash
-        // changes, so the open app is told where to go instead (App.tsx handles 'orca:open').
-        existing.postMessage({ type: 'orca:open', url })
+        // Paddock routes with the #hash, and Chrome often ignores navigate() when only the hash
+        // changes, so the open app is told where to go instead (App.tsx handles 'paddock:open').
+        existing.postMessage({ type: 'paddock:open', url })
         return
       }
       await self.clients.openWindow(url)

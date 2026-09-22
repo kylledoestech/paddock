@@ -36,13 +36,14 @@ export interface MachineFs {
   realpath(path: string): Promise<string | null>
   stat(path: string): Promise<FileInfo | null>
   readHead(path: string, bytes: number): Promise<Buffer>
-  readStream(path: string): Readable
+  /** `range` (inclusive byte offsets) streams only that slice, for video seeking. */
+  readStream(path: string, range?: { start: number; end: number }): Readable
   /** Creates the file; fails if it already exists. Parent folders are created. */
   writeNew(path: string, data: Buffer): Promise<void>
   /** Files directly inside `dir` (not recursive). */
   listFiles(dir: string): Promise<FileEntry[]>
   remove(path: string): Promise<void>
-  /** Adds `.orca/` to the repo's local exclude list if `cwd` is a git repo. */
+  /** Adds `.paddock/` to the repo's local exclude list if `cwd` is a git repo. */
   excludeFromGit(cwd: string): Promise<void>
   recentFiles(query: RecentQuery): Promise<FileEntry[]>
   /** A file called `name` in any direct subfolder of `root`, or null. */
@@ -77,8 +78,8 @@ export class LocalFs implements MachineFs {
     }
   }
 
-  readStream(path: string) {
-    return createReadStream(path)
+  readStream(path: string, range?: { start: number; end: number }) {
+    return createReadStream(path, range)
   }
 
   async writeNew(path: string, data: Buffer) {
@@ -105,9 +106,9 @@ export class LocalFs implements MachineFs {
     const exclude = join(cwd, '.git', 'info', 'exclude')
     if (!(await this.stat(join(cwd, '.git')))?.isDir) return
     const current = await readFile(exclude, 'utf8').catch(() => '')
-    if (current.split('\n').some((line) => line.trim() === '.orca/')) return
+    if (current.split('\n').some((line) => line.trim() === '.paddock/')) return
     await mkdir(join(cwd, '.git', 'info'), { recursive: true })
-    await appendFile(exclude, `${current && !current.endsWith('\n') ? '\n' : ''}.orca/\n`)
+    await appendFile(exclude, `${current && !current.endsWith('\n') ? '\n' : ''}.paddock/\n`)
   }
 
   async recentFiles(q: RecentQuery) {
@@ -184,8 +185,11 @@ export class SshFs implements MachineFs {
     return this.run('head -c "$2" -- "$1"', [path, String(bytes)], { maxBytes: bytes })
   }
 
-  readStream(path: string) {
-    const child = sshSpawn(this.target, shScript('cat -- "$1"', path))
+  readStream(path: string, range?: { start: number; end: number }) {
+    // dd with a large block size would round the offsets; tail/head cut at exact bytes.
+    const child = range
+      ? sshSpawn(this.target, shScript('tail -c +"$2" -- "$1" | head -c "$3"', path, String(range.start + 1), String(range.end - range.start + 1)))
+      : sshSpawn(this.target, shScript('cat -- "$1"', path))
     child.stdin!.end()
     return child.stdout!
   }
@@ -207,7 +211,7 @@ export class SshFs implements MachineFs {
   async excludeFromGit(cwd: string) {
     await this.run(
       '[ -d "$1/.git" ] || exit 0; f="$1/.git/info/exclude"; mkdir -p "$1/.git/info"; ' +
-        'grep -qxF ".orca/" "$f" 2>/dev/null || { [ -s "$f" ] && [ -n "$(tail -c1 "$f")" ] && echo >> "$f"; echo ".orca/" >> "$f"; }',
+        'grep -qxF ".paddock/" "$f" 2>/dev/null || { [ -s "$f" ] && [ -n "$(tail -c1 "$f")" ] && echo >> "$f"; echo ".paddock/" >> "$f"; }',
       [cwd],
     )
   }

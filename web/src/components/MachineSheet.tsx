@@ -38,7 +38,7 @@ export function MachineSheet({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <p className="sheet__text">
-          To add a machine, run <code>herdr machine add ssh://user@host:port</code> on the machine Orca runs on. It
+          To add a machine, run <code>herdr machine add ssh://user@host:port</code> on the machine Paddock runs on. It
           shows up here within a minute. The machine needs herdr and SSH key login.
         </p>
       </div>

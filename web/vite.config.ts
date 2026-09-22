@@ -9,7 +9,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const BUILD_ID = `${pad(now.getMonth() + 1)}${pad(now.getDate())}.${pad(now.getHours())}${pad(now.getMinutes())}`
 
 const versionFile = (): Plugin => ({
-  name: 'orca-version-file',
+  name: 'paddock-version-file',
   generateBundle() {
     this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ build: BUILD_ID }) })
   },
@@ -28,7 +28,7 @@ export default defineConfig({
     },
   },
   build: { assetsInlineLimit: (file) => (/\.(woff2?|ttf)$/.test(file) ? false : undefined) },
-  define: { __ORCA_BUILD__: JSON.stringify(BUILD_ID) },
+  define: { __PADDOCK_BUILD__: JSON.stringify(BUILD_ID) },
   plugins: [
     react(),
     versionFile(),
@@ -43,8 +43,8 @@ export default defineConfig({
       },
       includeAssets: ['icons/icon.svg'],
       manifest: {
-        name: 'Orca',
-        short_name: 'Orca',
+        name: 'Paddock',
+        short_name: 'Paddock',
         description: 'Drive your herdr agents from your phone',
         theme_color: '#0E0F11',
         background_color: '#0E0F11',

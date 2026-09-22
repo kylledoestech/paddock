@@ -109,7 +109,7 @@ export function ControlBar({
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         hidden
         onChange={(e) => {
           const file = e.target.files?.[0]

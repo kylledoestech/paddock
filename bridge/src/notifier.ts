@@ -79,8 +79,8 @@ export function startNotifier(machine: Machine, severalMachines: () => boolean):
 
   const notify = (kind: PushKind, paneId: string, title: string, body: string) => {
     const where = `${machine.id}/${paneId}`
-    if (isViewing(machine.id, paneId)) return console.log(`[orca] ${kind} ${where}: quiet (open on a phone)`)
-    console.log(`[orca] ${kind} ${where}: ${title} — ${body}`)
+    if (isViewing(machine.id, paneId)) return console.log(`[paddock] ${kind} ${where}: quiet (open on a phone)`)
+    console.log(`[paddock] ${kind} ${where}: ${title} — ${body}`)
     void sendPush({
       kind,
       title,

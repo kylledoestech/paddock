@@ -40,7 +40,7 @@ function onLines(sock: Socket, handle: (msg: Response) => void): void {
 
 export function rpc<T = unknown>(socketPath: string, method: string, params: object = {}, timeoutMs = 10_000): Promise<T> {
   return new Promise((resolve, reject) => {
-    const id = `orca_${randomUUID()}`
+    const id = `paddock_${randomUUID()}`
     const sock = connect(socketPath)
     const timer = setTimeout(() => {
       sock.destroy()
@@ -74,7 +74,7 @@ export function subscribe(
   subscriptions: object[],
   handlers: { onReady?: () => void; onEvent: (event: unknown) => void; onClose: (err?: Error) => void },
 ): Subscription {
-  const id = `orca_sub_${randomUUID()}`
+  const id = `paddock_sub_${randomUUID()}`
   const sock = connect(socketPath)
   let acked = false
   let closed = false

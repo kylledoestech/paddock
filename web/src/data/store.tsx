@@ -13,14 +13,12 @@ interface State {
   link: LinkStatus
   /** False until the bridge's first state message arrives. */
   connected: boolean
-  showShells: boolean
   collapsed: string[]
   notices: Notice[]
 }
 
 type Action =
   | { type: 'selectMachine'; id: string }
-  | { type: 'toggleShells' }
   | { type: 'toggleWorkspace'; key: string }
   | { type: 'machines'; list: MachineInfo[] }
   | { type: 'bridgeState'; machine: MachineInfo; state: BridgeState }
@@ -28,8 +26,8 @@ type Action =
   | { type: 'notice'; level: Notice['level']; message: string }
   | { type: 'dismissNotice'; id: number }
 
-const COLLAPSED_KEY = 'orca.collapsed'
-const MACHINE_KEY = 'orca.machine'
+const COLLAPSED_KEY = 'paddock.collapsed'
+const MACHINE_KEY = 'paddock.machine'
 let noticeId = 0
 
 function loadCollapsed(): string[] {
@@ -73,8 +71,6 @@ function reducer(state: State, action: Action): State {
       )
       return { ...state, machines, machineId: pickMachine(machines, state.machineId) }
     }
-    case 'toggleShells':
-      return { ...state, showShells: !state.showShells }
     case 'toggleWorkspace': {
       const has = state.collapsed.includes(action.key)
       return {
@@ -124,7 +120,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     machineId: MOCK ? mockMachines[0].id : placeholderMachine.id,
     link: (MOCK ? 'open' : 'connecting') as LinkStatus,
     connected: MOCK,
-    showShells: false,
     collapsed: loadCollapsed(),
     notices: [],
   }))

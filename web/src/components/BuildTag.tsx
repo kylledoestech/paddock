@@ -28,10 +28,10 @@ export function BuildTag() {
     }
   }, [])
 
-  const outdated = latest !== null && latest !== __ORCA_BUILD__
+  const outdated = latest !== null && latest !== __PADDOCK_BUILD__
   return (
     <div className="build-tag">
-      <span>Orca · build {__ORCA_BUILD__}</span>
+      <span>Paddock · build {__PADDOCK_BUILD__}</span>
       {outdated ? (
         <button className="build-tag__update" onClick={() => window.location.reload()}>
           Update to {latest} — tap to reload

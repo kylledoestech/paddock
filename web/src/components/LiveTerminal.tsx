@@ -23,7 +23,7 @@ interface Closed {
 const FONT_DEFAULT = 13
 const FONT_MIN = 4
 const FONT_MAX = 28
-const FONT_KEY = 'orca.termFontSize'
+const FONT_KEY = 'paddock.termFontSize'
 
 const clampFont = (n: number) => Math.max(FONT_MIN, Math.min(FONT_MAX, Math.round(n)))
 
@@ -69,10 +69,12 @@ export interface TerminalControls {
   input: (text: string) => void
   /** Image file paths currently visible on screen, newest (lowest) first. */
   imagePaths: () => string[]
+  /** Puts the keyboard focus in the terminal (desktop: type straight into the pane). */
+  focus: () => void
 }
 
 // Absolute, ~/ or relative paths ending in an image extension, as agents and shells print them.
-const IMAGE_PATH = /(?:~\/|\.{1,2}\/|\/)?(?:[\w@.+-]+\/)*[\w@.+-]+\.(?:png|jpe?g|webp|gif|svg)\b/gi
+const IMAGE_PATH = /(?:~\/|\.{1,2}\/|\/)?(?:[\w@.+-]+\/)*[\w@.+-]+\.(?:png|jpe?g|webp|gif|svg|mp4|m4v|mov|webm)\b/gi
 
 function imagePathsIn(text: string): { path: string; index: number }[] {
   return [...text.matchAll(IMAGE_PATH)].map((m) => ({ path: m[0], index: m.index ?? 0 }))
@@ -90,10 +92,13 @@ export const LiveTerminal = memo(function LiveTerminal({
   paneId,
   controlsRef,
   onImagePathRef,
+  autoFocus = false,
 }: {
   machineId: string
   paneId: string
   controlsRef: MutableRefObject<TerminalControls | null>
+  /** Desktop: focus the terminal once it opens, so typing goes straight to the pane. */
+  autoFocus?: boolean
   /** Called when an image path in the output is tapped. A ref, so the memoised terminal never re-renders. */
   onImagePathRef: MutableRefObject<(path: string) => void>
 }) {
@@ -135,24 +140,63 @@ export const LiveTerminal = memo(function LiveTerminal({
       if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg))
     }
     const dataSub = term.onData((text) => send({ type: 'input', text }))
+    // Desktop terminal shortcuts. xterm would turn Ctrl+V into a literal ^V; handing it back lets the
+    // browser paste instead (text through xterm's bracketed paste, images through the upload in
+    // Terminal.tsx). Copy follows Windows Terminal: Ctrl+C copies only while text is selected.
+    term.attachCustomKeyEventHandler((e) => {
+      if (e.type !== 'keydown') return true
+      const key = e.key.toLowerCase()
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && key === 'v') return false
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && (key === '=' || key === '+' || key === '-' || key === '0')) {
+        e.preventDefault()
+        applyFontSize(key === '0' ? FONT_DEFAULT : clampFont(fontSize + (key === '-' ? -1 : 1)))
+        return false
+      }
+      if (key === 'c' && ((e.ctrlKey && e.shiftKey) || e.metaKey || (e.ctrlKey && term.hasSelection()))) {
+        if (term.hasSelection()) {
+          void navigator.clipboard?.writeText(term.getSelection())
+          term.clearSelection()
+          e.preventDefault()
+        }
+        return false
+      }
+      return true
+    })
 
     const lineText = (y: number) => term.buffer.active.getLine(y)?.translateToString(true) ?? ''
+    // herdr repaints the pane row by row, so xterm's own isWrapped flag is never set. A row that
+    // fills the width is treated as continuing into the next one, which is how a long path looks.
+    const runsOn = (y: number) => y >= 0 && lineText(y).trimEnd().length >= term.cols
+    const startsRun = (y: number) => !runsOn(y - 1)
+
+    /** A row plus the rows its text ran onto, so a path split by the width stays one string. */
+    const wrappedText = (y: number): string => {
+      let text = lineText(y).trimEnd()
+      for (let next = y; runsOn(next) && next + 1 < term.buffer.active.length; next++) text += lineText(next + 1).trimEnd()
+      return text
+    }
+
     controlsRef.current = {
       input: (text) => send({ type: 'input', text }),
       imagePaths: () => {
         const found: string[] = []
         for (let y = term.buffer.active.length - 1; y >= 0; y--) {
-          for (const { path } of imagePathsIn(lineText(y))) if (!found.includes(path)) found.push(path)
+          if (!startsRun(y)) continue // Covered by the row its text started on.
+          for (const { path } of imagePathsIn(wrappedText(y))) if (!found.includes(path)) found.push(path)
         }
         return found
       },
+      focus: () => term.focus(),
     }
 
-    // Tappable image paths in the output.
+    // Tappable image and video paths in the output, including ones that wrapped across rows.
     const linkSub = term.registerLinkProvider({
       provideLinks(y, callback) {
-        const links = imagePathsIn(lineText(y - 1)).map(({ path, index }) => ({
-          range: { start: { x: index + 1, y }, end: { x: index + path.length, y } },
+        if (!startsRun(y - 1)) return callback(undefined)
+        const cols = term.cols
+        const cell = (index: number) => ({ x: (index % cols) + 1, y: y + Math.floor(index / cols) })
+        const links = imagePathsIn(wrappedText(y - 1)).map(({ path, index }) => ({
+          range: { start: cell(index), end: cell(index + path.length - 1) },
           text: path,
           activate: () => onImagePathRef.current(path),
         }))
@@ -211,7 +255,7 @@ export const LiveTerminal = memo(function LiveTerminal({
     const onHidden = () => {
       if (document.visibilityState !== 'hidden' || disposed || ended) return
       drop()
-      setStatus('Paused while Orca is in the background')
+      setStatus('Paused while Paddock is in the background')
     }
     document.addEventListener('visibilitychange', onHidden)
     const stopResume = onPageResume(() => {
@@ -231,6 +275,17 @@ export const LiveTerminal = memo(function LiveTerminal({
       }, RESIZE_DEBOUNCE_MS)
     }
     const resizeObserver = new ResizeObserver(onBoxResize)
+
+    const applyFontSize = (target: number) => {
+      if (target === fontSize) return
+      fontSize = target
+      saveFontSize(fontSize)
+      term.options.fontSize = fontSize
+      // herdr reflows the pane to the new size, like a rotation or keyboard resize.
+      const { cols, rows } = fitCells()
+      term.resize(cols, rows)
+      send({ type: 'resize', cols, rows })
+    }
 
     // One finger drags herdr's scrollback for the pane (xterm here keeps none of its own).
     // Two fingers pinch the font size: previewed as a CSS scale, applied when the fingers lift.
@@ -281,17 +336,32 @@ export const LiveTerminal = memo(function LiveTerminal({
         pinch = null
         host.style.transform = ''
         setZoomLabel(null)
-        if (target !== fontSize) {
-          fontSize = target
-          saveFontSize(fontSize)
-          term.options.fontSize = fontSize
-          // herdr reflows the pane to the new size, like a rotation or keyboard resize.
-          const { cols, rows } = fitCells()
-          term.resize(cols, rows)
-          send({ type: 'resize', cols, rows })
-        }
+        applyFontSize(target)
       }
       if (e.touches.length === 0) touchY = null
+    }
+
+    // Desktop: the wheel scrolls herdr's scrollback like the one-finger drag, unless the program
+    // in the pane asked for mouse events (vim, htop…), which xterm then sends itself.
+    // Ctrl+wheel changes the font size like the pinch, instead of zooming the whole page.
+    let wheelAcc = 0
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        e.stopPropagation()
+        if (e.deltaY !== 0) applyFontSize(clampFont(fontSize + (e.deltaY < 0 ? 1 : -1)))
+        return
+      }
+      if (term.modes.mouseTrackingMode !== 'none') return
+      e.preventDefault()
+      e.stopPropagation()
+      const lineHeight = cellSize(term, fontSize).height
+      wheelAcc += e.deltaMode === 1 ? e.deltaY * lineHeight : e.deltaMode === 2 ? e.deltaY * term.rows * lineHeight : e.deltaY
+      const lines = Math.trunc(wheelAcc / lineHeight)
+      if (lines !== 0) {
+        wheelAcc -= lines * lineHeight
+        send({ type: 'scroll', direction: lines < 0 ? 'up' : 'down', lines: Math.abs(lines) })
+      }
     }
 
     // Measure with the real font, not a fallback, before sizing the pane.
@@ -318,11 +388,14 @@ export const LiveTerminal = memo(function LiveTerminal({
         textarea.setAttribute('autocapitalize', 'off')
         textarea.setAttribute('spellcheck', 'false')
       }
+      if (autoFocus) term.focus()
       resizeObserver.observe(box)
       host.addEventListener('touchstart', onTouchStart, { passive: true })
       host.addEventListener('touchmove', onTouchMove, { passive: true })
       host.addEventListener('touchend', onTouchEnd, { passive: true })
       host.addEventListener('touchcancel', onTouchEnd, { passive: true })
+      // Capture phase, so this runs before xterm's own wheel handling.
+      host.addEventListener('wheel', onWheel, { passive: false, capture: true })
       connect()
     })
 
@@ -338,6 +411,7 @@ export const LiveTerminal = memo(function LiveTerminal({
       host.removeEventListener('touchstart', onTouchStart)
       host.removeEventListener('touchmove', onTouchMove)
       host.removeEventListener('touchend', onTouchEnd)
+      host.removeEventListener('wheel', onWheel, { capture: true })
       host.removeEventListener('touchcancel', onTouchEnd)
       dataSub.dispose()
       term.dispose()

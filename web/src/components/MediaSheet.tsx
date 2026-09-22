@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { imageUrl, type MediaItem, type PaneMedia } from '../data/live'
+import { imageUrl, isVideoPath, type MediaItem, type PaneMedia } from '../data/live'
 import { useStore } from '../data/store'
 import { Sheet } from './Sheet'
-import { Refresh } from './icons'
+import { Play, Refresh } from './icons'
 
 interface Group {
   key: string
@@ -70,7 +70,7 @@ export function MediaSheet({
         </button>
         {error && <p className="media__empty">Couldn’t load media: {error}</p>}
         {!loading && !error && groups.length === 0 && (
-          <p className="media__empty">No images yet. Upload one with the photo key, or ask the agent to make one.</p>
+          <p className="media__empty">No images or videos yet. Upload one with the photo key, or ask the agent to make one.</p>
         )}
         {groups.map((group) => (
           <section key={group.key} className="media__group" aria-label={group.title}>
@@ -79,11 +79,21 @@ export function MediaSheet({
               <span>{group.items.length}</span>
             </h3>
             <div className="media__grid">
-              {group.items.map((item, i) => (
-                <button key={item.url} className="media__thumb" aria-label={`Open ${item.name}`} onClick={() => onOpen(group.items, i)}>
-                  <img src={item.url} alt="" loading="lazy" decoding="async" onError={() => markBroken(item.url)} />
-                </button>
-              ))}
+              {group.items.map((item, i) =>
+                isVideoPath(item.path || item.name) ? (
+                  <button key={item.url} className="media__thumb" aria-label={`Play ${item.name}`} onClick={() => onOpen(group.items, i)}>
+                    {/* #t=0.1 makes the browser fetch one frame as the poster. */}
+                    <video src={`${item.url}#t=0.1`} preload="metadata" muted playsInline onError={() => markBroken(item.url)} />
+                    <span className="media__play" aria-hidden="true">
+                      <Play size={16} />
+                    </span>
+                  </button>
+                ) : (
+                  <button key={item.url} className="media__thumb" aria-label={`Open ${item.name}`} onClick={() => onOpen(group.items, i)}>
+                    <img src={item.url} alt="" loading="lazy" decoding="async" onError={() => markBroken(item.url)} />
+                  </button>
+                ),
+              )}
             </div>
           </section>
         ))}

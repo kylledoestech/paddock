@@ -1,4 +1,4 @@
-// App-wide icon set: Lucide, re-exported under Orca's names with one default stroke weight.
+// App-wide icon set: Lucide, re-exported under Paddock's names with one default stroke weight.
 import type { LucideIcon, LucideProps } from 'lucide-react'
 import {
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   ClipboardList,
   FastForward,
   Pause,
+  Play as LucidePlay,
   ShieldOff,
   Zap,
   Bell as LucideBell,
@@ -42,12 +43,12 @@ const withDefaults = (Icon: LucideIcon) => {
   return Wrapped
 }
 
+export const Play = withDefaults(LucidePlay)
 export const Back = withDefaults(ArrowLeft)
 export const ChevronDown = withDefaults(LucideChevronDown)
 export const ChevronLeft = withDefaults(LucideChevronLeft)
 export const ChevronRight = withDefaults(LucideChevronRight)
 export const ChevronUp = withDefaults(LucideChevronUp)
-export const Shells = withDefaults(SquareTerminal)
 export const Bell = withDefaults(LucideBell)
 export const Plus = withDefaults(LucidePlus)
 export const Close = withDefaults(X)

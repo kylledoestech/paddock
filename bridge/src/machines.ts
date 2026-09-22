@@ -1,4 +1,4 @@
-// The machines Orca drives: this one, plus every enabled herdr saved SSH machine
+// The machines Paddock drives: this one, plus every enabled herdr saved SSH machine
 // (`herdr machine list --json`). A remote machine's herdr socket is forwarded over one SSH
 // connection, so the rest of the bridge talks to every machine the same way.
 import { execFile, spawn, type ChildProcess } from 'node:child_process'
@@ -9,10 +9,10 @@ import { promisify } from 'node:util'
 import { localSocketPath, rpc } from './herdr.ts'
 import { SnapshotHub } from './hub.ts'
 import { LocalFs, SshFs, type MachineFs } from './fsops.ts'
-import { ORCA_CACHE, parseTarget, shScript, sshExec, sshOptions, sshSpawn, type SshTarget } from './ssh.ts'
+import { PADDOCK_CACHE, parseTarget, shScript, sshExec, sshOptions, sshSpawn, type SshTarget } from './ssh.ts'
 import { herdrBin as localHerdrBin } from './terminal.ts'
 
-const SOCKET_DIR = join(ORCA_CACHE, 'sockets')
+const SOCKET_DIR = join(PADDOCK_CACHE, 'sockets')
 mkdirSync(SOCKET_DIR, { recursive: true, mode: 0o700 })
 
 const REFRESH_MS = 60_000
@@ -282,7 +282,7 @@ export class MachineRegistry {
       const { stdout } = await promisify(execFile)(localHerdrBin, ['machine', 'list', '--json'], { timeout: 10_000 })
       profiles = (JSON.parse(stdout) as Profile[]).filter((p) => p.enabled)
     } catch (err) {
-      console.warn(`[orca] could not read herdr machines: ${(err as Error).message}`)
+      console.warn(`[paddock] could not read herdr machines: ${(err as Error).message}`)
       return
     }
     let changed = false

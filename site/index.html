@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Orca: herdr in your pocket</title>
-<meta name="description" content="Orca is a phone and browser client for herdr. See which agents are blocked, answer them, open any pane at a size you can read, and get a notification when work is done.">
+<title>Paddock: herdr in your pocket</title>
+<meta name="description" content="Paddock is a phone and browser client for herdr. See which agents are blocked, answer them, open any pane at a size you can read, and get a notification when work is done.">
 <meta name="theme-color" content="#0A0B0C">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/jetbrains-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -14,13 +14,13 @@
 <body>
 
 <nav class="nav wrap">
-  <a class="nav__brand" href="#top">orca</a>
+  <a class="nav__brand" href="#top">paddock</a>
   <span class="nav__for">for herdr</span>
   <span class="nav__links">
     <a href="#features">[features]</a>
     <a href="#setup">[setup]</a>
     <a href="#faq">[faq]</a>
-    <a class="nav__gh" href="https://github.com/kylledoestech/orca">[github]</a>
+    <a class="nav__gh" href="https://github.com/kylledoestech/paddock">[github]</a>
   </span>
 </nav>
 
@@ -29,11 +29,11 @@
 <!-- Hero -->
 <section class="hero wrap">
   <div class="hero__text">
-    <svg class="logo" viewBox="0 0 192 50" role="img" aria-label="ORCA"><rect x="6" y="0" width="36" height="10"/><rect x="54" y="0" width="36" height="10"/><rect x="108" y="0" width="36" height="10"/><rect x="156" y="0" width="30" height="10"/><rect x="0" y="10" width="12" height="10"/><rect x="36" y="10" width="12" height="10"/><rect x="54" y="10" width="12" height="10"/><rect x="84" y="10" width="12" height="10"/><rect x="102" y="10" width="12" height="10"/><rect x="150" y="10" width="12" height="10"/><rect x="180" y="10" width="12" height="10"/><rect x="0" y="20" width="12" height="10"/><rect x="36" y="20" width="12" height="10"/><rect x="54" y="20" width="36" height="10"/><rect x="102" y="20" width="12" height="10"/><rect x="150" y="20" width="42" height="10"/><rect x="0" y="30" width="12" height="10"/><rect x="36" y="30" width="12" height="10"/><rect x="54" y="30" width="12" height="10"/><rect x="84" y="30" width="12" height="10"/><rect x="102" y="30" width="12" height="10"/><rect x="150" y="30" width="12" height="10"/><rect x="180" y="30" width="12" height="10"/><rect x="6" y="40" width="36" height="10"/><rect x="54" y="40" width="12" height="10"/><rect x="84" y="40" width="12" height="10"/><rect x="108" y="40" width="36" height="10"/><rect x="150" y="40" width="12" height="10"/><rect x="180" y="40" width="12" height="10"/></svg>
+    <svg class="logo" viewBox="0 0 192 50" role="img" aria-label="PADDOCK"><rect x="6" y="0" width="36" height="10"/><rect x="54" y="0" width="36" height="10"/><rect x="108" y="0" width="36" height="10"/><rect x="156" y="0" width="30" height="10"/><rect x="0" y="10" width="12" height="10"/><rect x="36" y="10" width="12" height="10"/><rect x="54" y="10" width="12" height="10"/><rect x="84" y="10" width="12" height="10"/><rect x="102" y="10" width="12" height="10"/><rect x="150" y="10" width="12" height="10"/><rect x="180" y="10" width="12" height="10"/><rect x="0" y="20" width="12" height="10"/><rect x="36" y="20" width="12" height="10"/><rect x="54" y="20" width="36" height="10"/><rect x="102" y="20" width="12" height="10"/><rect x="150" y="20" width="42" height="10"/><rect x="0" y="30" width="12" height="10"/><rect x="36" y="30" width="12" height="10"/><rect x="54" y="30" width="12" height="10"/><rect x="84" y="30" width="12" height="10"/><rect x="102" y="30" width="12" height="10"/><rect x="150" y="30" width="12" height="10"/><rect x="180" y="30" width="12" height="10"/><rect x="6" y="40" width="36" height="10"/><rect x="54" y="40" width="12" height="10"/><rect x="84" y="40" width="12" height="10"/><rect x="108" y="40" width="36" height="10"/><rect x="150" y="40" width="12" height="10"/><rect x="180" y="40" width="12" height="10"/></svg>
     <h1>herdr, in your pocket<span class="cursor">_</span></h1>
     <p class="lede">Answer, watch and steer every agent you run in herdr from your phone. Claude asks a question at your desk; you answer it from the queue at the café.</p>
     <div class="buttons">
-      <a class="btn btn--primary" href="#setup">git clone orca</a>
+      <a class="btn btn--primary" href="#setup">git clone paddock</a>
       <a class="btn" href="#how">how it works</a>
     </div>
     <p class="meta">free · open source · self-hosted · no account</p>
@@ -58,10 +58,10 @@
 </section>
 
 <!-- How it connects -->
-<section class="flow wrap" id="how" aria-label="How Orca connects">
+<section class="flow wrap" id="how" aria-label="How Paddock connects">
   <div class="flow__box"><b>herdr</b><span>agents</span></div>
   <div class="flow__link"><span>unix socket · ssh tunnels</span><i></i></div>
-  <div class="flow__box"><b>orca</b><span>bridge</span></div>
+  <div class="flow__box"><b>paddock</b><span>bridge</span></div>
   <div class="flow__link"><span>tailscale https · your tailnet only</span><i></i></div>
   <div class="flow__box"><b>phone</b><span>or browser</span></div>
 </section>
@@ -87,7 +87,7 @@
         <div class="row"><i class="dot dot--blocked"></i><span class="row__a">claude</span><span class="row__b">api@devbox</span><span class="row__c strong">Do you want to create hello.txt?</span></div>
         <div class="row"><i class="dot dot--blocked"></i><span class="row__a">claude</span><span class="row__b">site@laptop-wsl</span><span class="row__c strong">Which auth provider should I use?</span></div>
         <div class="row"><i class="dot dot--done"></i><span class="row__a">codex</span><span class="row__b">tests@devbox</span><span class="row__c">Finished: 14 tests added</span></div>
-        <div class="row"><i class="dot dot--working"></i><span class="row__a">claude</span><span class="row__b">orca@devbox</span><span class="row__c">Building the web app…</span></div>
+        <div class="row"><i class="dot dot--working"></i><span class="row__a">claude</span><span class="row__b">paddock@devbox</span><span class="row__c">Building the web app…</span></div>
         <div class="row"><i class="dot dot--idle"></i><span class="row__a">shell</span><span class="row__b">logs@laptop-wsl</span><span class="row__c">tail -f bridge.log</span></div>
       </div>
     </div>
@@ -97,7 +97,7 @@
     <div class="feature__text">
       <span class="feature__num">02 / terminal</span>
       <h2>A real terminal, sized for your phone</h2>
-      <p>Orca takes over the pane at your screen’s size, so lines wrap where you can read them. Leave, and your desk gets the pane back.</p>
+      <p>Paddock takes over the pane at your screen’s size, so lines wrap where you can read them. Leave, and your desk gets the pane back.</p>
       <ul>
         <li>pinch to show more or less text</li>
         <li>esc, tab, arrows and enter above the keyboard</li>
@@ -139,9 +139,9 @@
     </div>
     <div class="feature__visual">
       <div class="notifs">
-        <div class="notif"><span class="notif__icon">O</span><span><small>Orca · now</small><b>claude needs you · api</b><span>Do you want to create hello.txt?</span></span></div>
-        <div class="notif"><span class="notif__icon">O</span><span><small>Orca · 4 min ago</small><b>codex finished · tests</b><span>Write integration tests</span></span></div>
-        <div class="notif notif--old"><span class="notif__icon">O</span><span><small>Orca · 31 min ago</small><b>claude exited · site</b><span>laptop-wsl</span></span></div>
+        <div class="notif"><span class="notif__icon">O</span><span><small>Paddock · now</small><b>claude needs you · api</b><span>Do you want to create hello.txt?</span></span></div>
+        <div class="notif"><span class="notif__icon">O</span><span><small>Paddock · 4 min ago</small><b>codex finished · tests</b><span>Write integration tests</span></span></div>
+        <div class="notif notif--old"><span class="notif__icon">O</span><span><small>Paddock · 31 min ago</small><b>claude exited · site</b><span>laptop-wsl</span></span></div>
       </div>
     </div>
   </article>
@@ -191,7 +191,7 @@
     <div class="feature__text">
       <span class="feature__num">06 / machines</span>
       <h2>Every machine you herd</h2>
-      <p>Orca reads your herdr machine list and reaches each one through an SSH tunnel. Nothing to install there beyond herdr.</p>
+      <p>Paddock reads your herdr machine list and reaches each one through an SSH tunnel. Nothing to install there beyond herdr.</p>
       <ul>
         <li>local and SSH machines in one list</li>
         <li>reconnects with backoff when a box sleeps</li>
@@ -239,11 +239,11 @@
   <p class="sub">Wider than 1024px, the list becomes a sidebar and the pane opens beside it.</p>
   <div class="desk__window">
     <aside class="desk__side">
-      <div class="desk__brand">Orca</div>
+      <div class="desk__brand">Paddock</div>
       <div class="desk__search"><span>Search</span><span>⌘K</span></div>
       <div class="desk__row desk__row--on"><i class="dot dot--blocked"></i><b>claude</b><span>api</span></div>
       <div class="desk__row"><i class="dot dot--working"></i><b>codex</b><span>tests</span></div>
-      <div class="desk__row"><i class="dot dot--done"></i><b>claude</b><span>orca</span></div>
+      <div class="desk__row"><i class="dot dot--done"></i><b>claude</b><span>paddock</span></div>
       <div class="desk__row"><i class="dot dot--idle"></i><b>opencode</b><span>infra</span></div>
       <div class="desk__row"><i class="dot dot--idle"></i><b>shell</b><span>logs</span></div>
     </aside>
@@ -272,8 +272,8 @@
   <div class="pane step">
     <span class="pane__title">step 1</span>
     <h3>Run the bridge next to herdr</h3>
-    <div class="code"><button class="copy" type="button">copy</button><pre><code><span class="dim">$ </span>git clone https://github.com/kylledoestech/orca
-<span class="dim">$ </span>cd orca/web &amp;&amp; npm install &amp;&amp; npm run build
+    <div class="code"><button class="copy" type="button">copy</button><pre><code><span class="dim">$ </span>git clone https://github.com/kylledoestech/paddock
+<span class="dim">$ </span>cd paddock/web &amp;&amp; npm install &amp;&amp; npm run build
 <span class="dim">$ </span>cd ../bridge &amp;&amp; npm install
 <span class="dim">$ </span>npm start      <span class="dim"># Node 22.18+, listens on 127.0.0.1:4280</span></code></pre></div>
   </div>
@@ -294,8 +294,8 @@
 <section class="faq wrap" id="faq">
   <div class="rule"><span>faq</span></div>
   <dl>
-    <div><dt>Is Orca part of herdr?</dt><dd>No. Orca is a separate client that talks to herdr’s socket API.</dd></div>
-    <div><dt>Do my remote machines need anything new?</dt><dd>Only herdr and SSH access. Orca opens a tunnel to each machine’s herdr socket.</dd></div>
+    <div><dt>Is Paddock part of herdr?</dt><dd>No. Paddock is a separate client that talks to herdr’s socket API.</dd></div>
+    <div><dt>Do my remote machines need anything new?</dt><dd>Only herdr and SSH access. Paddock opens a tunnel to each machine’s herdr socket.</dd></div>
     <div><dt>Does anything leave my network?</dt><dd>Push notifications go through your browser’s push service. Voice clips go to Groq, and only when you use voice. Nothing else.</dd></div>
     <div><dt>Who can open it?</dt><dd>Devices on your tailnet. The bridge listens only on localhost and rejects other origins.</dd></div>
     <div><dt>Which phones work?</dt><dd>Built and tested on Android Chrome. iPhone is untested so far.</dd></div>
@@ -307,17 +307,17 @@
   <div class="cta__box">
     <div>
       <h2>Take the herd with you<span class="cursor">_</span></h2>
-      <code class="dim">$ git clone https://github.com/kylledoestech/orca</code>
+      <code class="dim">$ git clone https://github.com/kylledoestech/paddock</code>
     </div>
-    <a class="btn btn--primary" href="https://github.com/kylledoestech/orca">get orca</a>
+    <a class="btn btn--primary" href="https://github.com/kylledoestech/paddock">get paddock</a>
   </div>
 </section>
 
 </main>
 
 <footer class="footer wrap">
-  <span>orca · a phone companion for herdr</span>
-  <span>MIT license · <a href="https://github.com/kylledoestech/orca">github</a></span>
+  <span>paddock · a phone companion for herdr</span>
+  <span>MIT license · <a href="https://github.com/kylledoestech/paddock">github</a></span>
 </footer>
 
 <script>

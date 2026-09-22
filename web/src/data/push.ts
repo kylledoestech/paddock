@@ -3,7 +3,7 @@ export type PushKind = 'blocked' | 'done' | 'exited'
 export type PushPrefs = Record<PushKind, boolean>
 export type PushStatus = 'unsupported' | 'insecure' | 'denied' | 'off' | 'on'
 
-const PREFS_KEY = 'orca.pushPrefs'
+const PREFS_KEY = 'paddock.pushPrefs'
 export const DEFAULT_PREFS: PushPrefs = { blocked: true, done: true, exited: true }
 
 export function loadPrefs(): PushPrefs {

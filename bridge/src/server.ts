@@ -1,8 +1,8 @@
-// Orca bridge: serves the PWA and relays herdr state, pane output and actions for every machine
+// Paddock bridge: serves the PWA and relays herdr state, pane output and actions for every machine
 // (this one plus herdr's saved SSH machines, see machines.ts).
 //
 // Security: this process can type into every terminal herdr runs, so it listens on loopback
-// only; phones reach it over HTTPS through `tailscale serve` (tailnet only). ORCA_HOSTS can add
+// only; phones reach it over HTTPS through `tailscale serve` (tailnet only). PADDOCK_HOSTS can add
 // addresses. Cross-origin browser requests are rejected. Device pairing comes later.
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { resolve } from 'node:path'
@@ -34,11 +34,11 @@ import { staticHandler } from './static.ts'
 import { currentMode, MODES, switchMode, type ClaudeMode } from './mode.ts'
 import { MAX_AUDIO_BYTES, transcribe, transcriptionConfigured } from './transcribe.ts'
 
-const PORT = Number(process.env.ORCA_PORT ?? 4280)
+const PORT = Number(process.env.PADDOCK_PORT ?? 4280)
 const WEB_ROOT = resolve(fileURLToPath(new URL('../../web/dist', import.meta.url)))
 
 const listenHosts = (): string[] =>
-  process.env.ORCA_HOSTS ? process.env.ORCA_HOSTS.split(',').map((h) => h.trim()).filter(Boolean) : ['127.0.0.1']
+  process.env.PADDOCK_HOSTS ? process.env.PADDOCK_HOSTS.split(',').map((h) => h.trim()).filter(Boolean) : ['127.0.0.1']
 
 // ---------- machines and state ----------
 
@@ -242,10 +242,10 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
     const started = Date.now()
     try {
       const text = await transcribe(audio, req.headers['content-type'], hint, language)
-      console.log(`[orca] voice ${audio.length}B ${req.headers['content-type']} lang=${language ?? 'auto'} ${Date.now() - started}ms ok (${text.length} chars)`)
+      console.log(`[paddock] voice ${audio.length}B ${req.headers['content-type']} lang=${language ?? 'auto'} ${Date.now() - started}ms ok (${text.length} chars)`)
       return json(res, 200, { text })
     } catch (err) {
-      console.log(`[orca] voice ${audio.length}B ${req.headers['content-type']} lang=${language ?? 'auto'} failed: ${(err as Error).message}`)
+      console.log(`[paddock] voice ${audio.length}B ${req.headers['content-type']} lang=${language ?? 'auto'} failed: ${(err as Error).message}`)
       throw err
     }
   }
@@ -262,7 +262,7 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
   if (path === '/api/push/test') {
     const endpoint = typeof body.endpoint === 'string' ? body.endpoint : undefined
     const delivered = await sendPush(
-      { kind: 'test', title: 'Notifications connected', body: 'Orca will tell you when your agents need you', tag: 'test', url: '/' },
+      { kind: 'test', title: 'Notifications connected', body: 'Paddock will tell you when your agents need you', tag: 'test', url: '/' },
       endpoint,
     )
     return json(res, 200, { delivered })
@@ -271,7 +271,7 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
 }
 
 function handleRequest(req: IncomingMessage, res: ServerResponse): void {
-  const url = new URL(req.url ?? '/', 'http://orca')
+  const url = new URL(req.url ?? '/', 'http://paddock')
   const handler = url.pathname.startsWith('/api/') ? handleApi(req, res, url) : serveStatic(req, res)
   handler.catch((err: Error) => {
     if (!res.headersSent) json(res, (err as { status?: number }).status ?? 400, { error: err.message })
@@ -300,7 +300,7 @@ setInterval(() => {
 }, HEARTBEAT_MS).unref()
 
 function handleUpgrade(req: IncomingMessage, socket: Duplex, head: Buffer): void {
-  const url = new URL(req.url ?? '/', 'http://orca')
+  const url = new URL(req.url ?? '/', 'http://paddock')
   if (!sameOrigin(req) || (url.pathname !== '/ws' && url.pathname !== '/ws/term')) {
     socket.destroy()
     return
@@ -343,5 +343,5 @@ await registry.start()
 for (const host of listenHosts()) {
   const server = createServer(handleRequest)
   server.on('upgrade', handleUpgrade)
-  server.listen(PORT, host, () => console.log(`[orca] http://${host}:${PORT}`))
+  server.listen(PORT, host, () => console.log(`[paddock] http://${host}:${PORT}`))
 }

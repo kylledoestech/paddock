@@ -68,7 +68,7 @@ export interface Snapshot {
   layouts: PaneLayout[]
 }
 
-/** A herdr server Orca can reach. Orca-side concept, not part of the herdr API. */
+/** A herdr server Paddock can reach. Paddock-side concept, not part of the herdr API. */
 export interface Machine {
   id: string
   label: string

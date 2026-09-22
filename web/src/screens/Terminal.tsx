@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useStore } from '../data/store'
 import { imageUrl, type MediaItem } from '../data/live'
 import { isShell, paneTitle, tabFor, workspaceFor } from '../data/selectors'
@@ -21,6 +21,13 @@ const LiveTerminal = lazy(() => import('../components/LiveTerminal').then((m) =>
 // paths), and nothing is submitted, so the user can review or add to it before pressing enter.
 const paste = (text: string, trailingSpace = true) => `\x1b[200~${text}${trailingSpace ? ' ' : ''}\x1b[201~`
 
+/**
+ * A message the user typed goes in as plain keystrokes. Sent as a bracketed paste it arrives as
+ * "pasted text", which Claude Code deliberately does not take instructions from, so answers like
+ * "yes, go ahead" were ignored. Multi-line text still pastes: the newlines would submit it early.
+ */
+const typed = (text: string) => (text.includes('\n') ? paste(text, false) : text)
+
 export function Terminal({
   paneId,
   onBack,
@@ -41,6 +48,44 @@ export function Terminal({
   const onImagePathRef = useRef<(path: string) => void>(() => undefined)
   onImagePathRef.current = (path) =>
     setViewer({ items: [{ name: path.split('/').pop() ?? path, path, mtime: Date.now(), url: imageUrl(machine.id, paneId, path) }], index: 0 })
+  const attachImages = async (files: File[]) => {
+    setUploading(true)
+    try {
+      // One at a time, so the paths land in the prompt in the order they were pasted.
+      for (const file of files) {
+        // Videos upload as they are; only photos go through the resizer.
+        const body = file.type.startsWith('video/') ? file : await prepareImage(file)
+        const path = await api.uploadImage(paneId, body)
+        if (controlsRef.current) controlsRef.current.input(paste(path))
+        else notify('info', `Image saved to ${path}`)
+      }
+      if (controlsRef.current) {
+        const kind = files.every((f) => f.type.startsWith('video/')) ? 'Video' : 'Image'
+        notify('info', files.length > 1 ? `${files.length} files attached — add a message and press enter` : `${kind} attached — add a message and press enter`)
+      }
+    } catch (err) {
+      notify('error', `Upload failed: ${(err as Error).message}`)
+    } finally {
+      setUploading(false)
+    }
+  }
+  const attachImagesRef = useRef(attachImages)
+  attachImagesRef.current = attachImages
+
+  // Pasting an image (Ctrl+V / Cmd+V) anywhere on this screen uploads it like the photo button.
+  // Capture phase, so the terminal doesn't also receive the paste as (empty) text.
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      const images = [...(e.clipboardData?.files ?? [])].filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
+      if (!images.length) return
+      e.preventDefault()
+      e.stopPropagation()
+      void attachImagesRef.current(images)
+    }
+    window.addEventListener('paste', onPaste, true)
+    return () => window.removeEventListener('paste', onPaste, true)
+  }, [])
+
   const snapshot = machine.snapshot
   const pane = snapshot?.panes.find((p) => p.pane_id === paneId)
 
@@ -63,23 +108,6 @@ export function Terminal({
   const workspace = workspaceFor(snapshot, pane)
   const tab = tabFor(snapshot, pane)
   const where = `${workspace?.label}/${tab?.label}`
-
-  const attachImage = async (file: File) => {
-    setUploading(true)
-    try {
-      const path = await api.uploadImage(pane.pane_id, await prepareImage(file))
-      if (controlsRef.current) {
-        controlsRef.current.input(paste(path))
-        notify('info', 'Image attached — add a message and press enter')
-      } else {
-        notify('info', `Image saved to ${path}`)
-      }
-    } catch (err) {
-      notify('error', `Upload failed: ${(err as Error).message}`)
-    } finally {
-      setUploading(false)
-    }
-  }
 
   return (
     <div className="term">
@@ -107,17 +135,26 @@ export function Terminal({
       </header>
       <div className="term__screen">
         <Suspense fallback={<div className="live-term__status">Loading…</div>}>
-          <LiveTerminal machineId={machine.id} paneId={pane.pane_id} controlsRef={controlsRef} onImagePathRef={onImagePathRef} />
+          <LiveTerminal
+            machineId={machine.id}
+            paneId={pane.pane_id}
+            controlsRef={controlsRef}
+            onImagePathRef={onImagePathRef}
+            autoFocus={embedded}
+          />
         </Suspense>
       </div>
-      <ControlBar
-        onInput={(seq) => controlsRef.current?.input(seq)}
-        onPaste={(text) => controlsRef.current?.input(paste(text, false))}
-        onImage={(file) => void attachImage(file)}
-        uploading={uploading}
-        modeTile={pane.agent === 'claude' ? <ModeKey paneId={pane.pane_id} agentStatus={pane.agent_status} /> : undefined}
-        voiceHint={[workspace?.label, tab?.label, paneTitle(pane)].filter(Boolean).join(', ')}
-      />
+      {/* Desktop types straight into the terminal; the phone keyboard needs the message bar. */}
+      {!embedded && (
+        <ControlBar
+          onInput={(seq) => controlsRef.current?.input(seq)}
+          onPaste={(text) => controlsRef.current?.input(typed(text))}
+          onImage={(file) => void attachImages([file])}
+          uploading={uploading}
+          modeTile={pane.agent === 'claude' ? <ModeKey paneId={pane.pane_id} agentStatus={pane.agent_status} /> : undefined}
+          voiceHint={[workspace?.label, tab?.label, paneTitle(pane)].filter(Boolean).join(', ')}
+        />
+      )}
       {mediaOpen && (
         <MediaSheet
           paneId={pane.pane_id}

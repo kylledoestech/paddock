@@ -1,5 +1,5 @@
 import { useStore } from '../data/store'
-import { Bell, ChevronDown, Shells } from './icons'
+import { Bell, ChevronDown } from './icons'
 
 export function Header({
   onOpenMachines,
@@ -14,11 +14,11 @@ export function Header({
   /** Desktop sidebar: title, machine and actions on one row. */
   compact?: boolean
 }) {
-  const { machine, showShells, dispatch } = useStore()
+  const { machine } = useStore()
   return (
     <>
       <div className={`header${compact ? ' header--compact' : ''}`}>
-        {compact && <span className="header__brand">Orca</span>}
+        {compact && <span className="header__brand">Paddock</span>}
         <button className="machine-button" onClick={onOpenMachines} aria-haspopup="dialog">
           <span
             className={`dot dot--small dot--${machine.online ? 'online' : machine.status === 'attention' ? 'blocked' : 'offline'}`}
@@ -33,17 +33,9 @@ export function Header({
             <Bell />
             {notificationsOff && <span className="bell__dot" aria-hidden="true" />}
           </button>
-          <button
-            className="icon-button"
-            aria-label={showShells ? 'Hide shells' : 'Show shells'}
-            aria-pressed={showShells}
-            onClick={() => dispatch({ type: 'toggleShells' })}
-          >
-            <Shells />
-          </button>
         </div>
       </div>
-      {!compact && <h1 className="title">Orca</h1>}
+      {!compact && <h1 className="title">Paddock</h1>}
     </>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../data/store'
-import { groupPanesByWorkspace, paneTitle, shellCount, tabFor, type WorkspaceGroup as Group } from '../data/selectors'
+import { groupPanesByWorkspace, paneTitle, tabFor, type WorkspaceGroup as Group } from '../data/selectors'
 import { Header } from '../components/Header'
 import { NeedsYou } from '../components/NeedsYou'
 import { WorkspaceGroup } from '../components/WorkspaceGroup'
@@ -44,7 +44,7 @@ export function Home({
   sidebar?: boolean
   activePaneId?: string
 }) {
-  const { machine, machines, showShells, connected, link, api } = useStore()
+  const { machine, machines, connected, link, api } = useStore()
   const [sheet, setSheetState] = useState<OpenSheet>({ kind: 'none' })
   const setSheet = (kind: 'none' | 'machines' | 'new' | 'notifications') => setSheetState({ kind })
   const [push, setPush] = useState<PushStatus | null>(null)
@@ -59,18 +59,19 @@ export function Home({
     idle(warm)
   }, [])
   const snapshot = machine.online ? machine.snapshot : null
-  const groups = snapshot ? groupPanesByWorkspace(snapshot, showShells) : []
-  const hiddenShells = snapshot && !showShells ? shellCount(snapshot) : 0
+  const groups = snapshot ? groupPanesByWorkspace(snapshot) : []
   const [query, setQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   // A search looks through hidden shells too.
-  const shown = snapshot ? (query.trim() ? filterGroups(groupPanesByWorkspace(snapshot, true), query, snapshot) : groups) : []
+  const shown = snapshot ? (query.trim() ? filterGroups(groups, query, snapshot) : groups) : []
 
   // Desktop: ⌘K / Ctrl+K jumps to the pane search.
   useEffect(() => {
     if (!sidebar) return
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      // Ctrl+K inside the terminal belongs to the terminal (the shell's kill-line); ⌘K still works there.
+      const inTerminal = e.target instanceof Element && !!e.target.closest('.xterm')
+      if ((e.metaKey || (e.ctrlKey && !inTerminal)) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
         searchRef.current?.focus()
       }
@@ -128,10 +129,10 @@ export function Home({
                   : `${machine.label} is offline`}
             </strong>
             {!connected
-              ? 'Waiting for the Orca bridge.'
+              ? 'Waiting for the Paddock bridge.'
               : machine.status === 'attention'
-                ? `SSH says: ${machine.error ?? 'login failed'}. Check the key and host, then Orca retries on its own.`
-                : 'Orca can’t reach herdr on this machine. It will reconnect automatically.'}
+                ? `SSH says: ${machine.error ?? 'login failed'}. Check the key and host, then Paddock retries on its own.`
+                : 'Paddock can’t reach herdr on this machine. It will reconnect automatically.'}
           </div>
         ) : groups.length === 0 ? (
           <div className="banner">
@@ -151,11 +152,6 @@ export function Home({
                 onActions={(workspace) => setSheetState({ kind: 'space', workspace })}
               />
             ))}
-            {hiddenShells > 0 && (
-              <div className="footer-note">
-                {hiddenShells} {hiddenShells === 1 ? 'shell' : 'shells'} hidden
-              </div>
-            )}
           </div>
         )}
 

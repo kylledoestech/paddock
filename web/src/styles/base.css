@@ -766,11 +766,31 @@ textarea.field__control {
   background: var(--surface-raised);
 }
 
-.media__thumb img {
+.media__thumb {
+  position: relative;
+}
+
+.media__thumb img,
+.media__thumb video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Play badge over a video tile. */
+.media__play {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
 }
 
 /* ---------- Image viewer ---------- */
@@ -1228,15 +1248,6 @@ textarea.field__control {
 /* The terminal fills the main column instead of the whole window. */
 .desktop__main .term {
   position: absolute;
-}
-
-.desktop__main .cbar__row {
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-.desktop__main .cbar__pop {
-  right: max(14px, calc((100% - 720px) / 2));
 }
 
 .desktop__empty {

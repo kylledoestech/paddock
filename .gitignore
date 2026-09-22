@@ -2,6 +2,6 @@ ref/
 node_modules/
 dist/
 .env
-.orca/
+.paddock/
 docs/herdr/
 *.tsbuildinfo

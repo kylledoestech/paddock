@@ -1,18 +1,18 @@
 // Speech to text for the phone's mic key: the phone records audio, the bridge sends it to Groq's
 // hosted Whisper (whisper-large-v3: the full model; turbo trades accuracy for speed) and returns the text.
-// The API key stays on this machine: GROQ_API_KEY, or ~/.config/orca/groq.key (mode 600).
+// The API key stays on this machine: GROQ_API_KEY, or ~/.config/paddock/groq.key (mode 600).
 import { readFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { HttpError } from './http.ts'
 
-const KEY_FILE = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'orca', 'groq.key')
+const KEY_FILE = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'paddock', 'groq.key')
 const ENDPOINT = 'https://api.groq.com/openai/v1/audio/transcriptions'
 const MODEL = 'whisper-large-v3'
 export const MAX_AUDIO_BYTES = 25 * 1024 * 1024 // Groq's limit for direct uploads
 // Whisper takes a short prompt to bias spelling toward names it would otherwise miss. Keep it short:
 // long word lists push it toward those words even when you didn't say them.
-const BASE_VOCABULARY = 'Claude, herdr, Orca'
+const BASE_VOCABULARY = 'Claude, herdr, Paddock'
 
 const AUDIO_EXT: Record<string, string> = {
   'audio/webm': 'webm',

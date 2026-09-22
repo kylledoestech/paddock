@@ -1,10 +1,10 @@
-// Web Push to the user's phones. VAPID keys and subscriptions live in ~/.config/orca/.
+// Web Push to the user's phones. VAPID keys and subscriptions live in ~/.config/paddock/.
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import webpush, { type PushSubscription } from 'web-push'
 
-const CONFIG_DIR = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'orca')
+const CONFIG_DIR = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'paddock')
 const KEYS_FILE = join(CONFIG_DIR, 'vapid.json')
 const SUBS_FILE = join(CONFIG_DIR, 'push-subscriptions.json')
 
@@ -50,7 +50,7 @@ export async function initPush(): Promise<void> {
     await writeFile(KEYS_FILE, JSON.stringify(keys), { mode: 0o600 })
   }
   // The subject is only a contact hint for push services; nothing is sent there.
-  webpush.setVapidDetails('mailto:orca@localhost', keys.publicKey, keys.privateKey)
+  webpush.setVapidDetails('mailto:paddock@localhost', keys.publicKey, keys.privateKey)
   publicKey = keys.publicKey
   subscriptions = (await readJson<StoredSubscription[]>(SUBS_FILE)) ?? []
 }
@@ -106,7 +106,7 @@ export async function sendPush(payload: PushPayload, onlyEndpoint?: string): Pro
       } catch (err) {
         const status = (err as { statusCode?: number }).statusCode
         if (status === 404 || status === 410) gone.push(s.subscription.endpoint)
-        else console.warn(`[orca] push failed (${status ?? 'network'}): ${(err as Error).message}`)
+        else console.warn(`[paddock] push failed (${status ?? 'network'}): ${(err as Error).message}`)
       }
     }),
   )

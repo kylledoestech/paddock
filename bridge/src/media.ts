@@ -1,13 +1,23 @@
-// Per-pane image routes, relative to a machine (/api/m/:machine/…):
-//   POST panes/:id/uploads            raw image body -> { path }
+// Per-pane media routes, relative to a machine (/api/m/:machine/…):
+//   POST panes/:id/uploads            raw image or video body -> { path }
 //   GET  panes/:id/media              { session[], project[], uploads[] }
-//   GET  panes/:id/image?path=…       a validated image file the pane printed or produced
+//   GET  panes/:id/image?path=…       a validated image or video the pane printed or produced
 //   GET  panes/:id/session-image/:n   image n from the pane's Claude session log
+// Videos answer Range requests, so seeking doesn't refetch the whole file.
 // Files are read and written through the machine's MachineFs, so this works over SSH too.
 import { posix } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { json, readBinaryBody, sameOrigin, HttpError } from './http.ts'
-import { imageHeaders, listUploads, MAX_UPLOAD_BYTES, recentProjectImages, resolveImage, saveUpload, type ImageEntry } from './images.ts'
+import {
+  listUploads,
+  mediaHeaders,
+  MAX_UPLOAD_BYTES,
+  parseRange,
+  recentProjectMedia,
+  resolveMedia,
+  saveUpload,
+  type ImageEntry,
+} from './images.ts'
 import type { Machine } from './machines.ts'
 import { sessionImages, transcriptFor, type SessionImage } from './transcript.ts'
 
@@ -51,7 +61,7 @@ async function listMedia(machine: Machine, pane: MediaPane) {
   const toItems = (entries: ImageEntry[]): MediaItem[] => entries.map((e) => ({ ...e, url: url.file(e.path) }))
   const [session, project, uploads] = await Promise.all([
     paneSessionImages(machine, pane).catch(() => []),
-    recentProjectImages(machine.fs, pane.foreground_cwd || pane.cwd).catch(() => []),
+    recentProjectMedia(machine.fs, pane.foreground_cwd || pane.cwd).catch(() => []),
     listUploads(machine.fs, pane.cwd).catch(() => []),
   ])
   const sessionItems: MediaItem[] = session
@@ -65,9 +75,18 @@ async function listMedia(machine: Machine, pane: MediaPane) {
   return { session: sessionItems, project: toItems(project), uploads: toItems(uploads) }
 }
 
-function streamFile(res: ServerResponse, machine: Machine, path: string, mime: string, size: number): void {
-  res.writeHead(200, imageHeaders(mime, size))
-  const stream = machine.fs.readStream(path)
+function streamFile(req: IncomingMessage, res: ServerResponse, machine: Machine, path: string, mime: string, size: number): void {
+  const range = parseRange(req.headers.range, size)
+  const length = range ? range.end - range.start + 1 : size
+  res.writeHead(range ? 206 : 200, {
+    ...mediaHeaders(mime, length),
+    ...(range ? { 'content-range': `bytes ${range.start}-${range.end}/${size}` } : {}),
+  })
+  if (req.method === 'HEAD') {
+    res.end()
+    return
+  }
+  const stream = machine.fs.readStream(path, range ?? undefined)
   stream.on('error', () => res.destroy())
   res.on('close', () => stream.destroy())
   stream.pipe(res)
@@ -99,7 +118,7 @@ export async function handleMedia(
       json(res, 201, { path })
       return true
     }
-    if (req.method !== 'GET') throw new HttpError(405, 'method not allowed')
+    if (req.method !== 'GET' && req.method !== 'HEAD') throw new HttpError(405, 'method not allowed')
 
     if (route === 'media') {
       json(res, 200, await listMedia(machine, pane))
@@ -107,8 +126,8 @@ export async function handleMedia(
     }
 
     if (route === 'image') {
-      const image = await resolveImage(machine.fs, paneRoots(pane), url.searchParams.get('path') ?? '')
-      streamFile(res, machine, image.path, image.mime, image.size)
+      const file = await resolveMedia(machine.fs, paneRoots(pane), url.searchParams.get('path') ?? '')
+      streamFile(req, res, machine, file.path, file.mime, file.size)
       return true
     }
 
@@ -118,12 +137,12 @@ export async function handleMedia(
     if (!image) throw new HttpError(404, 'image not found')
     if (image.kind === 'inline') {
       const data = Buffer.from(image.data, 'base64')
-      res.writeHead(200, imageHeaders(image.mime, data.length))
+      res.writeHead(200, mediaHeaders(image.mime, data.length))
       res.end(data)
     } else {
       // Claude referenced this file itself, so its own folder is an allowed root.
-      const file = await resolveImage(machine.fs, [posix.dirname(image.path)], image.path)
-      streamFile(res, machine, file.path, file.mime, file.size)
+      const file = await resolveMedia(machine.fs, [posix.dirname(image.path)], image.path)
+      streamFile(req, res, machine, file.path, file.mime, file.size)
     }
     return true
   } catch (err) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Home } from '../screens/Home'
 import { Terminal } from '../screens/Terminal'
 import { Notices } from '../components/Notices'
@@ -36,7 +36,7 @@ export function App() {
     if (!('serviceWorker' in navigator)) return
     const onMessage = (e: MessageEvent) => {
       const data = e.data as { type?: string; url?: string } | null
-      if (data?.type !== 'orca:open' || !data.url) return
+      if (data?.type !== 'paddock:open' || !data.url) return
       const target = new URL(data.url, location.origin)
       if (target.origin !== location.origin) return
       if (location.hash !== target.hash) location.hash = target.hash
@@ -46,12 +46,20 @@ export function App() {
     return () => navigator.serviceWorker.removeEventListener('message', onMessage)
   }, [])
 
-  // A link to another machine's pane (e.g. from a notification) switches to that machine.
+  // A link to another machine's pane (e.g. from a notification) switches to that machine, once per
+  // link. After that, picking another machine by hand leaves the pane instead of being switched back.
+  const appliedRoute = useRef<string | null>(null)
   useEffect(() => {
-    if (route.machineId && route.machineId !== machine.id && machines.some((m) => m.id === route.machineId)) {
-      dispatch({ type: 'selectMachine', id: route.machineId })
+    if (!route.machineId) return
+    const key = `${route.machineId}/${route.paneId}`
+    if (appliedRoute.current !== key) {
+      if (!machines.some((m) => m.id === route.machineId)) return // Not loaded yet: try again when it is.
+      appliedRoute.current = key
+      if (route.machineId !== machine.id) dispatch({ type: 'selectMachine', id: route.machineId })
+      return
     }
-  }, [route.machineId, machine.id, machines, dispatch])
+    if (route.machineId !== machine.id) window.location.hash = '/'
+  }, [route, machine.id, machines, dispatch])
 
   const openPane = (paneId: string, machineId = machine.id) => {
     window.location.hash = `/m/${encodeURIComponent(machineId)}/pane/${encodeURIComponent(paneId)}`

@@ -29,8 +29,13 @@ function requestHost(req: IncomingMessage): string | undefined {
 export function sameOrigin(req: IncomingMessage): boolean {
   const origin = req.headers.origin
   if (!origin) return true
+  const host = requestHost(req)
+  if (!host) return false
   try {
-    return new URL(origin).host === requestHost(req)
+    const from = new URL(origin)
+    // `tailscale serve --https=8443` forwards the host without its port, so compare hostnames
+    // when the addressed host carries no port of its own.
+    return from.host === host || (!host.includes(':') && from.hostname === host)
   } catch {
     return false
   }

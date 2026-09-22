@@ -22,7 +22,7 @@ giving up the terminal or the desktop view. Research date: 2026-09-18. Claude Co
 - Other useful events: `SessionStart` (matchers startup/resume/clear/compact/fork), `UserPromptSubmit`, `Stop`,
   `StopFailure`, `Notification` (`permission_prompt`, `idle_prompt`, `elicitation_dialog`, `agent_needs_input`, …),
   `SubagentStart/Stop`, `PreCompact/PostCompact`, `SessionEnd`.
-- Plugins can ship hooks (`hooks/hooks.json`), so Orca can install as a Claude Code plugin instead of editing
+- Plugins can ship hooks (`hooks/hooks.json`), so Paddock can install as a Claude Code plugin instead of editing
   the user's settings.json.
 
 ### Transcript (`~/.claude/projects/<dir>/<session>.jsonl`)
@@ -51,7 +51,7 @@ giving up the terminal or the desktop view. Research date: 2026-09-18. Claude Co
 
 ## Design: make Option A exact instead of inferred
 
-| Need | Fragile way (collie) | Orca way |
+| Need | Fragile way (collie) | Paddock way |
 |---|---|---|
 | Which transcript belongs to a pane | scan dirs by session id, guess rotations | `SessionStart` command hook (http not supported there) sends `session_id` + `transcript_path` + `X-Herdr-Pane` straight to the bridge. Fires again on resume/clear/compact/fork, so rotations are exact |
 | Chat content | read whole file on demand | tail the exact file by byte offset + `fs.watch`; push new blocks over the socket |
@@ -70,7 +70,7 @@ Screen parsing stays only as a fallback (unknown dialogs, `/model`-style menus) 
 - No polling of `pane.read` for chat; herdr events + hooks drive everything.
 
 ### Install shape
-A Claude Code plugin "orca" shipping `hooks/hooks.json` with `http` hooks to `http://127.0.0.1:4280/hooks/...`
+A Claude Code plugin "paddock" shipping `hooks/hooks.json` with `http` hooks to `http://127.0.0.1:4280/hooks/...`
 and header `X-Herdr-Pane: $HERDR_PANE_ID` (`allowedEnvVars: ["HERDR_PANE_ID"]`). Hooks outside herdr (no pane id)
 are ignored by the bridge. Coexists with the user's existing PreToolUse/Stop hooks and herdr's SessionStart hook.
 

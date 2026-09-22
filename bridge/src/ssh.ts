@@ -6,8 +6,8 @@ import { mkdirSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-export const ORCA_CACHE = join(homedir(), '.cache', 'orca')
-const CONTROL_DIR = join(ORCA_CACHE, 'ssh')
+export const PADDOCK_CACHE = join(homedir(), '.cache', 'paddock')
+const CONTROL_DIR = join(PADDOCK_CACHE, 'ssh')
 mkdirSync(CONTROL_DIR, { recursive: true, mode: 0o700 })
 
 export interface SshTarget {

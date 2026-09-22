@@ -1,6 +1,6 @@
-# Orca — herdr research
+# Paddock — herdr research
 
-Orca is a PWA for [herdr](https://herdr.dev): drive herdr workspaces, panes, and AI coding agents from a phone.
+Paddock is a PWA for [herdr](https://herdr.dev): drive herdr workspaces, panes, and AI coding agents from a phone.
 Research date: 2026-09-18. Installed herdr: **0.9.1**, socket protocol **22**, API schema_version 1.
 
 ## What herdr is
@@ -15,7 +15,7 @@ Research date: 2026-09-18. Installed herdr: **0.9.1**, socket protocol **22**, A
 
 ## Integration surface
 
-### Raw socket API (primary for Orca)
+### Raw socket API (primary for Paddock)
 - Newline-delimited JSON over Unix socket `~/.config/herdr/herdr.sock` (named session: `~/.config/herdr/sessions/<name>/herdr.sock`; override `HERDR_SOCKET_PATH`).
 - Request `{"id":"r1","method":"ping","params":{}}` → `{"id":"r1","result":{...}}` or `{"id":..,"error":{"code","message"}}`.
 - Full JSON Schema: `docs/herdr/herdr-api-schema.json` (from `herdr api schema --output`). Method list + semantics: `docs/herdr/socket-api.mdx`.
@@ -59,7 +59,7 @@ Best ideas: collie's `HERDR_API.md` gotcha list, blocked-prompt → tappable but
 
 Gaps none fill: live terminal **and** push **and** auth together; notification body with the agent's actual question; notification action buttons (approve from lock screen); phone vs desktop PTY size conflict; `pane.output_matched` custom alerts; offline/queued replies.
 
-## Proposed Orca architecture (draft)
+## Proposed Paddock architecture (draft)
 1. Daemon (Bun/TS or Go) shipped as a herdr plugin `[[startup]]`, pidfile lock, absolute `herdr` path.
 2. Control: raw socket, one RPC per connection; subscribe → snapshot → apply; resync on reconnect.
 3. Live pane: `terminal session observe` default; input via `pane.send_text/send_keys` (no PTY resize). `control` only on explicit take-over.

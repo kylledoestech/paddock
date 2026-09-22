@@ -19,19 +19,16 @@ export interface WorkspaceGroup {
 }
 
 /** Workspaces in herdr order, each with its panes flattened across tabs. */
-export function groupPanesByWorkspace(snapshot: Snapshot, showShells: boolean): WorkspaceGroup[] {
+export function groupPanesByWorkspace(snapshot: Snapshot): WorkspaceGroup[] {
   return [...snapshot.workspaces]
     .sort((a, b) => a.number - b.number)
     .map((workspace) => ({
       workspace,
-      panes: snapshot.panes.filter(
-        (p) => p.workspace_id === workspace.workspace_id && (showShells || !isShell(p)),
-      ),
+      panes: snapshot.panes.filter((p) => p.workspace_id === workspace.workspace_id),
     }))
     .filter((g) => g.panes.length > 0)
 }
 
-export const shellCount = (snapshot: Snapshot): number => snapshot.panes.filter(isShell).length
 
 export function tabFor(snapshot: Snapshot, pane: Pane): Tab | undefined {
   return snapshot.tabs.find((t) => t.tab_id === pane.tab_id)

@@ -1,8 +1,8 @@
-# Orca
+# Paddock
 
 A phone and browser client for [herdr](https://github.com/herdrdev/herdr). See which agents are blocked, answer them, open any pane at a size you can read, and get a notification when work is done.
 
-Website: https://kylledoestech.github.io/orca/
+Website: https://kylledoestech.github.io/paddock/
 
 ## What it does
 
@@ -20,8 +20,8 @@ Website: https://kylledoestech.github.io/orca/
 Needs Node 22.18 or newer and herdr on the same machine.
 
 ```sh
-git clone https://github.com/kylledoestech/orca
-cd orca/web && npm install && npm run build
+git clone https://github.com/kylledoestech/paddock
+cd paddock/web && npm install && npm run build
 cd ../bridge && npm install
 npm start    # listens on 127.0.0.1:4280
 ```
@@ -32,7 +32,7 @@ Put it on your tailnet, then open the address on your phone and add it to the ho
 tailscale serve --bg --https=443 http://127.0.0.1:4280
 ```
 
-Optional: put a Groq API key in `~/.config/orca/groq.key` (mode 600) to turn on voice input.
+Optional: put a Groq API key in `~/.config/paddock/groq.key` (mode 600) to turn on voice input.
 
 ## Security
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { MediaItem } from '../data/live'
+import { isVideoPath, type MediaItem } from '../data/live'
 import { ChevronLeft, ChevronRight, Close, Download } from './icons'
 
 const SWIPE_PX = 60
@@ -9,12 +9,13 @@ function timeLabel(mtime: number): string {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
 }
 
-/** Full-screen image with native pinch-zoom; swipe or arrows move through the group. */
+/** Full-screen image or video; swipe or arrows move through the group. Images keep native pinch-zoom. */
 export function ImageViewer({ items, start, onClose }: { items: MediaItem[]; start: number; onClose: () => void }) {
   const [index, setIndex] = useState(start)
   const [failed, setFailed] = useState(false)
   const touchX = useRef<number | null>(null)
   const item = items[index]
+  const video = !!item && isVideoPath(item.path || item.name)
   const hasPrev = index > 0
   const hasNext = index < items.length - 1
 
@@ -34,7 +35,8 @@ export function ImageViewer({ items, start, onClose }: { items: MediaItem[]; sta
 
   // Only a single-finger horizontal swipe navigates; two fingers are pinch-zoom.
   const onTouchStart = (e: React.TouchEvent) => {
-    touchX.current = e.touches.length === 1 ? e.touches[0].clientX : null
+    // A video owns its own gestures (scrubbing, tap to pause).
+    touchX.current = !video && e.touches.length === 1 ? e.touches[0].clientX : null
   }
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchX.current === null || window.visualViewport?.scale !== 1) return
@@ -63,7 +65,20 @@ export function ImageViewer({ items, start, onClose }: { items: MediaItem[]; sta
       </header>
       <div className="viewer__stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         {failed ? (
-          <p className="viewer__error">Couldn’t load this image. It may have moved or be outside the project.</p>
+          <p className="viewer__error">
+            Couldn’t load this {video ? 'video' : 'image'}. It may have moved, be outside the project, or use a codec this browser can’t play.
+          </p>
+        ) : video ? (
+          <video
+            key={item.url}
+            className="viewer__img"
+            src={item.url}
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            onError={() => setFailed(true)}
+          />
         ) : (
           <img className="viewer__img" src={item.url} alt={item.name} onError={() => setFailed(true)} />
         )}

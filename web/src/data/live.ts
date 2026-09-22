@@ -1,4 +1,4 @@
-// Connection to the Orca bridge (bridge/src/server.ts), same origin as the page.
+// Connection to the Paddock bridge (bridge/src/server.ts), same origin as the page.
 import type { Snapshot } from '../types/herdr'
 
 export type BridgeState = { online: true; snapshot: Snapshot } | { online: false; error: string }
@@ -33,6 +33,9 @@ export interface LiveHandlers {
   onNotice: (level: 'info' | 'error', message: string) => void
   onLink: (status: LinkStatus) => void
 }
+
+/** Media whose extension the browser can play as video; everything else is treated as an image. */
+export const isVideoPath = (path: string): boolean => /\.(mp4|m4v|mov|webm)$/i.test(path)
 
 export const wsUrl = (path: string) => `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${path}`
 
@@ -191,7 +194,7 @@ export function apiFor(machineId: string) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ mode }),
       })).mode,
-    /** Saves an image into the pane's project (`.orca/uploads/`); resolves to its absolute path. */
+    /** Saves an image into the pane's project (`.paddock/uploads/`); resolves to its absolute path. */
     uploadImage: async (paneId: string, image: Blob) =>
       (await request<{ path: string }>(pane(paneId, 'uploads'), {
         method: 'POST',

@@ -20,9 +20,9 @@ const KINDS: { kind: PushKind; title: string; desc: string }[] = [
 ]
 
 const STATUS_TEXT: Record<PushStatus, string> = {
-  unsupported: 'This browser can’t receive push notifications. On iPhone, add Orca to the Home Screen first.',
-  insecure: 'Notifications need the HTTPS address: open Orca at https://<machine>.ts.net.',
-  denied: 'Notifications are blocked for Orca. Allow them in the browser’s site settings (Android: tap the lock icon → Permissions → Notifications), then come back.',
+  unsupported: 'This browser can’t receive push notifications. On iPhone, add Paddock to the Home Screen first.',
+  insecure: 'Notifications need the HTTPS address: open Paddock at https://<machine>.ts.net.',
+  denied: 'Notifications are blocked for Paddock. Allow them in the browser’s site settings (Android: tap the lock icon → Permissions → Notifications), then come back.',
   off: 'Get a notification when an agent needs you, finishes or exits. Quiet for the pane you have open.',
   on: 'On for this device. Quiet for the pane you have open.',
 }

@@ -99,9 +99,9 @@ const desk = buildSnapshot([
     ],
   },
   {
-    label: 'orca',
-    cwd: '/home/kylle/orca',
-    panes: [{ tab: 'main', agent: 'claude', status: 'working', title: 'Orca PWA app for herdr' }],
+    label: 'paddock',
+    cwd: '/home/kylle/paddock',
+    panes: [{ tab: 'main', agent: 'claude', status: 'working', title: 'Paddock PWA app for herdr' }],
   },
   {
     label: 'infra',

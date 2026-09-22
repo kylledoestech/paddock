@@ -51,7 +51,7 @@ async function load(file: string, mtime: number): Promise<Entry> {
 export function staticHandler(webRoot: string) {
   const assetsDir = join(webRoot, 'assets')
   return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-    const url = new URL(req.url ?? '/', 'http://orca')
+    const url = new URL(req.url ?? '/', 'http://paddock')
     const rel = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, '')
     let file = join(webRoot, rel)
     if (!file.startsWith(webRoot)) return json(res, 403, { error: 'forbidden' })

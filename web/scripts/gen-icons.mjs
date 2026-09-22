@@ -1,4 +1,4 @@
-// Renders the Orca icon (same shapes as public/icons/icon.svg) to PNG with no image deps.
+// Renders the Paddock icon (same shapes as public/icons/icon.svg) to PNG with no image deps.
 // Run: node scripts/gen-icons.mjs
 import { writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
