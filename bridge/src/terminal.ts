@@ -68,8 +68,17 @@ export function controlPane(ws: WebSocket, machine: Machine, paneId: string, col
 
   const key = viewKey(machine.id, paneId)
   viewing.set(key, (viewing.get(key) ?? 0) + 1)
+  let gone = false
+  // A pipe to a helper that has just exited reports EPIPE asynchronously; unhandled, that error
+  // takes the whole bridge down, so every pipe gets a handler and writes are best-effort.
+  for (const pipe of [child.stdin, child.stdout, child.stderr]) pipe?.on('error', () => undefined)
   const write = (command: object) => {
-    if (child.stdin?.writable) child.stdin!.write(JSON.stringify(command) + '\n')
+    if (gone || !child.stdin?.writable) return
+    try {
+      child.stdin.write(JSON.stringify(command) + '\n')
+    } catch {
+      // The helper is already gone; its exit closes the socket.
+    }
   }
 
   let buf = ''
@@ -96,8 +105,14 @@ export function controlPane(ws: WebSocket, machine: Machine, paneId: string, col
       ws.close()
     }
   }
-  child.on('exit', (code) => closeSocket(code, stderr.trim()))
-  child.on('error', (err) => closeSocket(null, err.message))
+  child.on('exit', (code) => {
+    gone = true
+    closeSocket(code, stderr.trim())
+  })
+  child.on('error', (err) => {
+    gone = true
+    closeSocket(null, err.message)
+  })
 
   ws.on('message', (data) => {
     const command = toCommand(data.toString())
