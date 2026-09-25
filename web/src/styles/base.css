@@ -88,6 +88,11 @@ textarea {
   padding: calc(var(--safe-top) + 8px) var(--gutter) calc(var(--safe-bottom) + 112px);
   max-width: 560px;
   margin: 0 auto;
+  /* Full height with a column layout, so the new-pane button and build tag sit at the bottom
+     of the screen instead of right under a short list. */
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -120,6 +125,20 @@ textarea {
   padding: 0;
   font-size: 15px;
   color: var(--text-muted);
+}
+
+/* Count of agents waiting on the machines that aren't shown. */
+.machine-button__badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--status-blocked);
+  color: #17140c;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
 }
 
 .icon-button {
@@ -1061,7 +1080,12 @@ textarea.field__control {
 
 /* ---------- Build tag ---------- */
 
+.side-new ~ .build-tag {
+  margin-top: 0;
+}
+
 .build-tag {
+  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1342,10 +1366,11 @@ textarea.field__control {
   border-radius: 5px;
 }
 
+/* Whichever of these comes first takes the free space above it; the other follows normally. */
 .side-new {
   width: 100%;
   height: 40px;
-  margin-top: 20px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: center;

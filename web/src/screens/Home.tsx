@@ -44,7 +44,7 @@ export function Home({
   sidebar?: boolean
   activePaneId?: string
 }) {
-  const { machine, machines, connected, link, api } = useStore()
+  const { machine, connected, link, api } = useStore()
   const [sheet, setSheetState] = useState<OpenSheet>({ kind: 'none' })
   const setSheet = (kind: 'none' | 'machines' | 'new' | 'notifications') => setSheetState({ kind })
   const [push, setPush] = useState<PushStatus | null>(null)
@@ -116,8 +116,8 @@ export function Home({
           </label>
         )}
 
-        {/* Agents waiting on you anywhere, not just on the selected machine. */}
-        <NeedsYou machines={machines} onOpenPane={onOpenPane} />
+        {/* Agents waiting on you on the selected machine; other machines are a badge on the switcher. */}
+        <NeedsYou machines={[machine]} onOpenPane={onOpenPane} />
 
         {!snapshot ? (
           <div className="banner" role="status">

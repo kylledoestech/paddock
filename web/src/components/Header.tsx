@@ -1,4 +1,5 @@
 import { useStore } from '../data/store'
+import { needsYou } from '../data/selectors'
 import { Bell, ChevronDown } from './icons'
 
 export function Header({
@@ -14,7 +15,11 @@ export function Header({
   /** Desktop sidebar: title, machine and actions on one row. */
   compact?: boolean
 }) {
-  const { machine } = useStore()
+  const { machine, machines } = useStore()
+  // Other machines are hidden from the list now, so their waiting agents show as a count here.
+  const elsewhere = machines
+    .filter((m) => m.id !== machine.id && m.snapshot)
+    .reduce((n, m) => n + needsYou(m.snapshot!).filter((p) => p.agent_status === 'blocked').length, 0)
   return (
     <>
       <div className={`header${compact ? ' header--compact' : ''}`}>
@@ -25,6 +30,11 @@ export function Header({
             aria-hidden="true"
           />
           {machine.label}
+          {elsewhere > 0 && (
+            <span className="machine-button__badge" aria-label={`${elsewhere} waiting on other machines`}>
+              {elsewhere}
+            </span>
+          )}
           <ChevronDown size={14} strokeWidth={2} />
           <span className="visually-hidden">Switch machine</span>
         </button>

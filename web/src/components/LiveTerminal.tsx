@@ -80,6 +80,28 @@ function imagePathsIn(text: string): { path: string; index: number }[] {
   return [...text.matchAll(IMAGE_PATH)].map((m) => ({ path: m[0], index: m.index ?? 0 }))
 }
 
+// Only http(s): a terminal prints all kinds of text, and other schemes can act on this device.
+const URL_TEXT = /\bhttps?:\/\/[^\s"'`<>\\^{}|]+/gi
+// Trailing punctuation usually belongs to the sentence, not the link: "see https://x.dev/docs."
+const TRAILING = /[.,;:!?]+$/
+
+function urlsIn(text: string): { url: string; index: number }[] {
+  return [...text.matchAll(URL_TEXT)].map((m) => {
+    let url = m[0].replace(TRAILING, '')
+    // Keep a closing bracket the link itself opened, as in Wikipedia's /wiki/Shell_(computing);
+    // drop one it never opened, as in Markdown "(https://x.dev)".
+    while (/[)\]]$/.test(url)) {
+      const close = url.slice(-1)
+      const open = close === ')' ? '(' : '['
+      const opens = url.split(open).length - 1
+      const closes = url.split(close).length - 1
+      if (closes <= opens) break
+      url = url.slice(0, -1)
+    }
+    return { url, index: m.index ?? 0 }
+  })
+}
+
 /**
  * Writable pane session sized to the phone. The bridge runs `herdr terminal session control`
  * at this component's size in cells, so herdr reflows the pane to fit instead of us scaling
@@ -189,17 +211,30 @@ export const LiveTerminal = memo(function LiveTerminal({
       focus: () => term.focus(),
     }
 
-    // Tappable image and video paths in the output, including ones that wrapped across rows.
+    // Tappable links in the output: http(s) URLs open in a new tab, image and video paths open in
+    // the viewer. Both handle text that wrapped across rows.
     const linkSub = term.registerLinkProvider({
       provideLinks(y, callback) {
         if (!startsRun(y - 1)) return callback(undefined)
+        const text = wrappedText(y - 1)
         const cols = term.cols
         const cell = (index: number) => ({ x: (index % cols) + 1, y: y + Math.floor(index / cols) })
-        const links = imagePathsIn(wrappedText(y - 1)).map(({ path, index }) => ({
-          range: { start: cell(index), end: cell(index + path.length - 1) },
-          text: path,
-          activate: () => onImagePathRef.current(path),
+        const urls = urlsIn(text)
+        const urlLinks = urls.map(({ url, index }) => ({
+          range: { start: cell(index), end: cell(index + url.length - 1) },
+          text: url,
+          activate: () => window.open(url, '_blank', 'noopener,noreferrer'),
         }))
+        // A path inside a URL (https://host/chart.png) belongs to the URL.
+        const inUrl = (index: number) => urls.some((u) => index >= u.index && index < u.index + u.url.length)
+        const pathLinks = imagePathsIn(text)
+          .filter(({ index }) => !inUrl(index))
+          .map(({ path, index }) => ({
+            range: { start: cell(index), end: cell(index + path.length - 1) },
+            text: path,
+            activate: () => onImagePathRef.current(path),
+          }))
+        const links = [...urlLinks, ...pathLinks]
         callback(links.length ? links : undefined)
       },
     })

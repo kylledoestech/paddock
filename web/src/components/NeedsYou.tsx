@@ -3,7 +3,7 @@ import { needsYou, paneTitle, workspaceFor } from '../data/selectors'
 import { StatusDot } from './StatusDot'
 import { ChevronRight } from './icons'
 
-/** Agents waiting on the user across every machine; each row says where when there are several. */
+/** Agents waiting on the user, for the machines passed in; each row says where when there are several. */
 export function NeedsYou({
   machines,
   onOpenPane,
